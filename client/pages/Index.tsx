@@ -6,6 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import {
   Mic,
   MicOff,
@@ -22,6 +27,8 @@ import {
   Settings,
   Menu,
   X,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 
 interface Message {
@@ -34,11 +41,14 @@ interface Message {
 interface Product {
   id: string;
   name: string;
-  category: string;
+  category: "TOYOTA" | "TSUDAKOMA" | "PICANOL" | "STAUBLI" | "ITEMA";
   price: number;
   stock: number;
   description: string;
+  image?: string;
 }
+
+const LOOM_CATEGORIES = ["TOYOTA", "TSUDAKOMA", "PICANOL", "STAUBLI", "ITEMA"] as const;
 
 export default function Index() {
   const [messages, setMessages] = useState<Message[]>([
@@ -56,33 +66,48 @@ export default function Index() {
     {
       id: "1",
       name: "Shuttle Loom Reed",
-      category: "Reed",
+      category: "TOYOTA",
       price: 2500,
       stock: 45,
-      description: "High-quality reed for shuttle looms",
+      description: "High-quality reed for Toyota shuttle looms",
+      image: "https://images.unsplash.com/photo-1565731137738-b2a2316cc7e4?w=400&h=300&fit=crop",
     },
     {
       id: "2",
-      name: "Heddle Hooks",
-      category: "Hooks",
+      name: "Heddle Hooks Set",
+      category: "TSUDAKOMA",
       price: 150,
       stock: 120,
-      description: "Durable heddle hooks for textile production",
+      description: "Durable heddle hooks for Tsudakoma textile production",
+      image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
     },
     {
       id: "3",
-      name: "Loom Temple",
-      category: "Temple",
+      name: "Adjustable Loom Temple",
+      category: "PICANOL",
       price: 3200,
       stock: 25,
-      description: "Adjustable temple for fabric weaving",
+      description: "Premium adjustable temple for Picanol fabric weaving",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
     },
   ]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("chat");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productFormData, setProductFormData] = useState({
+    name: "",
+    category: "" as Product["category"],
+    price: "",
+    stock: "",
+    description: "",
+    image: "",
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     scrollToBottom();
@@ -121,18 +146,30 @@ export default function Index() {
     const input = userInput.toLowerCase();
     
     if (input.includes("price") || input.includes("cost")) {
-      return "Our loom spare prices vary by product. Reed prices start from ₹2,500, hooks from ₹150, and temples from ₹3,200. Would you like specific pricing for any product?";
+      return "Our loom spare prices vary by manufacturer. Toyota parts start from ₹2,500, Tsudakoma from ₹150, and Picanol from ₹3,200. We also carry Staubli and Itema parts. Would you like specific pricing?";
     }
     if (input.includes("stock") || input.includes("available")) {
-      return "We maintain good stock levels for all our products. Currently, we have 45 shuttle loom reeds, 120 heddle hooks, and 25 loom temples in stock.";
+      return "We maintain good stock levels across all major loom manufacturers - Toyota, Tsudakoma, Picanol, Staubli, and Itema. Current stock includes 45 Toyota reeds, 120 Tsudakoma hooks, and 25 Picanol temples.";
+    }
+    if (input.includes("toyota")) {
+      return "We specialize in Toyota loom spares including reeds, shuttles, temples, and heddles. All parts are genuine and come with warranty. What Toyota part do you need?";
+    }
+    if (input.includes("tsudakoma")) {
+      return "Tsudakoma parts in stock include heddle hooks, reeds, and temple components. We ensure compatibility with all Tsudakoma loom models.";
+    }
+    if (input.includes("picanol")) {
+      return "Picanol loom spares available include high-quality temples, reeds, and mechanical components. All parts meet Picanol specifications.";
+    }
+    if (input.includes("staubli") || input.includes("itema")) {
+      return "We carry premium Staubli and Itema loom components. These European manufacturers' parts require precise specifications - please share your loom model for accurate recommendations.";
     }
     if (input.includes("delivery") || input.includes("shipping")) {
       return "We offer fast delivery across India. Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days.";
     }
     if (input.includes("quality") || input.includes("warranty")) {
-      return "All RKM Loom Spares come with a 1-year warranty. We use premium materials and follow strict quality control processes.";
+      return "All RKM Loom Spares come with a 1-year warranty. We use premium materials and follow strict quality control processes for all manufacturers.";
     }
-    return "Thank you for your inquiry! I can help you with product information, pricing, stock levels, and orders. What specific information do you need about our loom spares?";
+    return "Thank you for your inquiry! I can help you with Toyota, Tsudakoma, Picanol, Staubli, and Itema loom spares. What specific information do you need about our products?";
   };
 
   const startVoiceRecognition = () => {
@@ -177,10 +214,200 @@ export default function Index() {
     }
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setProductFormData(prev => ({ ...prev, image: result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const resetProductForm = () => {
+    setProductFormData({
+      name: "",
+      category: "" as Product["category"],
+      price: "",
+      stock: "",
+      description: "",
+      image: "",
+    });
+  };
+
+  const handleAddProduct = () => {
+    if (!productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
+      return;
+    }
+
+    const newProduct: Product = {
+      id: Date.now().toString(),
+      name: productFormData.name,
+      category: productFormData.category,
+      price: parseFloat(productFormData.price),
+      stock: parseInt(productFormData.stock),
+      description: productFormData.description,
+      image: productFormData.image || undefined,
+    };
+
+    setProducts(prev => [...prev, newProduct]);
+    resetProductForm();
+    setIsAddProductOpen(false);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setProductFormData({
+      name: product.name,
+      category: product.category,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      description: product.description,
+      image: product.image || "",
+    });
+    setIsEditProductOpen(true);
+  };
+
+  const handleUpdateProduct = () => {
+    if (!editingProduct || !productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
+      return;
+    }
+
+    const updatedProduct: Product = {
+      ...editingProduct,
+      name: productFormData.name,
+      category: productFormData.category,
+      price: parseFloat(productFormData.price),
+      stock: parseInt(productFormData.stock),
+      description: productFormData.description,
+      image: productFormData.image || undefined,
+    };
+
+    setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProduct : p));
+    resetProductForm();
+    setEditingProduct(null);
+    setIsEditProductOpen(false);
+  };
+
+  const handleDeleteProduct = (productId: string) => {
+    setProducts(prev => prev.filter(p => p.id !== productId));
+  };
+
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const ProductForm = ({ isEdit = false }) => (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="productName">Product Name *</Label>
+        <Input
+          id="productName"
+          value={productFormData.name}
+          onChange={(e) => setProductFormData(prev => ({ ...prev, name: e.target.value }))}
+          placeholder="Enter product name"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="category">Category *</Label>
+        <Select
+          value={productFormData.category}
+          onValueChange={(value: Product["category"]) => 
+            setProductFormData(prev => ({ ...prev, category: value }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select loom manufacturer" />
+          </SelectTrigger>
+          <SelectContent>
+            {LOOM_CATEGORIES.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="price">Price (₹) *</Label>
+          <Input
+            id="price"
+            type="number"
+            value={productFormData.price}
+            onChange={(e) => setProductFormData(prev => ({ ...prev, price: e.target.value }))}
+            placeholder="0"
+          />
+        </div>
+        <div>
+          <Label htmlFor="stock">Stock Quantity *</Label>
+          <Input
+            id="stock"
+            type="number"
+            value={productFormData.stock}
+            onChange={(e) => setProductFormData(prev => ({ ...prev, stock: e.target.value }))}
+            placeholder="0"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={productFormData.description}
+          onChange={(e) => setProductFormData(prev => ({ ...prev, description: e.target.value }))}
+          placeholder="Enter product description"
+          rows={3}
+        />
+      </div>
+
+      <div>
+        <Label>Product Image</Label>
+        <div className="mt-2 space-y-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full"
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Image
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          {productFormData.image && (
+            <div className="relative w-full h-32 border rounded-lg overflow-hidden">
+              <img
+                src={productFormData.image}
+                alt="Product preview"
+                className="w-full h-full object-cover"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="absolute top-2 right-2"
+                onClick={() => setProductFormData(prev => ({ ...prev, image: "" }))}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -376,17 +603,42 @@ export default function Index() {
                     className="pl-10 w-full sm:w-64"
                   />
                 </div>
-                <Button className="w-full sm:w-auto">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Product
-                </Button>
+                <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full sm:w-auto" onClick={resetProductForm}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Product
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Add New Product</DialogTitle>
+                    </DialogHeader>
+                    <ProductForm />
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsAddProductOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleAddProduct}>Add Product</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => (
                 <Card key={product.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
+                  <CardHeader className="pb-2">
+                    {product.image && (
+                      <div className="w-full h-48 mb-3 rounded-lg overflow-hidden">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-lg">{product.name}</CardTitle>
@@ -395,12 +647,34 @@ export default function Index() {
                         </Badge>
                       </div>
                       <div className="flex space-x-1">
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleEditProduct(product)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{product.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   </CardHeader>
@@ -425,6 +699,22 @@ export default function Index() {
                 </Card>
               ))}
             </div>
+
+            {/* Edit Product Dialog */}
+            <Dialog open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Product</DialogTitle>
+                </DialogHeader>
+                <ProductForm isEdit={true} />
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsEditProductOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleUpdateProduct}>Update Product</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
 
           {/* Analytics Dashboard */}
@@ -491,11 +781,11 @@ export default function Index() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Product Categories Overview</CardTitle>
+                <CardTitle>Loom Manufacturer Overview</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {Array.from(new Set(products.map(p => p.category))).map(category => {
+                  {LOOM_CATEGORIES.map(category => {
                     const categoryProducts = products.filter(p => p.category === category);
                     const categoryStock = categoryProducts.reduce((sum, p) => sum + p.stock, 0);
                     const categoryValue = categoryProducts.reduce((sum, p) => sum + (p.price * p.stock), 0);
