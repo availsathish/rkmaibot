@@ -8,9 +8,32 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Mic,
   MicOff,
@@ -49,14 +72,21 @@ interface Product {
   image?: string;
 }
 
-const LOOM_CATEGORIES = ["TOYOTA", "TSUDAKOMA", "PICANOL", "STAUBLI", "ITEMA"] as const;
+const LOOM_CATEGORIES = [
+  "TOYOTA",
+  "TSUDAKOMA",
+  "PICANOL",
+  "STAUBLI",
+  "ITEMA",
+] as const;
 
 export default function Index() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       type: "bot",
-      content: "Hello! I'm RKM Assistant. How can I help you with loom spares today?",
+      content:
+        "Hello! I'm RKM Assistant. How can I help you with loom spares today?",
       timestamp: new Date(),
     },
   ]);
@@ -72,7 +102,8 @@ export default function Index() {
       price: 2500,
       stock: 45,
       description: "High-quality reed for Toyota shuttle looms",
-      image: "https://images.unsplash.com/photo-1565731137738-b2a2316cc7e4?w=400&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1565731137738-b2a2316cc7e4?w=400&h=300&fit=crop",
     },
     {
       id: "2",
@@ -82,7 +113,8 @@ export default function Index() {
       price: 150,
       stock: 120,
       description: "Durable heddle hooks for Tsudakoma textile production",
-      image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
     },
     {
       id: "3",
@@ -92,7 +124,8 @@ export default function Index() {
       price: 3200,
       stock: 25,
       description: "Premium adjustable temple for Picanol fabric weaving",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
     },
   ]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -149,7 +182,7 @@ export default function Index() {
 
   const getBotResponse = (userInput: string): string => {
     const input = userInput.toLowerCase();
-    
+
     if (input.includes("price") || input.includes("cost")) {
       return "Our loom spare prices vary by manufacturer. Toyota parts start from ₹2,500, Tsudakoma from ₹150, and Picanol from ₹3,200. We also carry Staubli and Itema parts. Would you like specific pricing?";
     }
@@ -178,12 +211,14 @@ export default function Index() {
   };
 
   const startVoiceRecognition = () => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition =
+        (window as any).webkitSpeechRecognition ||
+        (window as any).SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.lang = "en-US";
 
       recognitionRef.current.onstart = () => {
         setIsRecording(true);
@@ -225,7 +260,7 @@ export default function Index() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        setProductFormData(prev => ({ ...prev, image: result }));
+        setProductFormData((prev) => ({ ...prev, image: result }));
       };
       reader.readAsDataURL(file);
     }
@@ -244,7 +279,13 @@ export default function Index() {
   };
 
   const handleAddProduct = () => {
-    if (!productFormData.code || !productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
+    if (
+      !productFormData.code ||
+      !productFormData.name ||
+      !productFormData.category ||
+      !productFormData.price ||
+      !productFormData.stock
+    ) {
       return;
     }
 
@@ -259,7 +300,7 @@ export default function Index() {
       image: productFormData.image || undefined,
     };
 
-    setProducts(prev => [...prev, newProduct]);
+    setProducts((prev) => [...prev, newProduct]);
     resetProductForm();
     setIsAddProductOpen(false);
   };
@@ -279,7 +320,14 @@ export default function Index() {
   };
 
   const handleUpdateProduct = () => {
-    if (!editingProduct || !productFormData.code || !productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
+    if (
+      !editingProduct ||
+      !productFormData.code ||
+      !productFormData.name ||
+      !productFormData.category ||
+      !productFormData.price ||
+      !productFormData.stock
+    ) {
       return;
     }
 
@@ -294,21 +342,23 @@ export default function Index() {
       image: productFormData.image || undefined,
     };
 
-    setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProduct : p));
+    setProducts((prev) =>
+      prev.map((p) => (p.id === editingProduct.id ? updatedProduct : p)),
+    );
     resetProductForm();
     setEditingProduct(null);
     setIsEditProductOpen(false);
   };
 
   const handleDeleteProduct = (productId: string) => {
-    setProducts(prev => prev.filter(p => p.id !== productId));
+    setProducts((prev) => prev.filter((p) => p.id !== productId));
   };
 
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchTerm.toLowerCase())
+      product.code.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const ProductForm = ({ isEdit = false }) => (
@@ -318,7 +368,9 @@ export default function Index() {
         <Input
           id="productCode"
           value={productFormData.code}
-          onChange={(e) => setProductFormData(prev => ({ ...prev, code: e.target.value }))}
+          onChange={(e) =>
+            setProductFormData((prev) => ({ ...prev, code: e.target.value }))
+          }
           placeholder="e.g., RKM-TOY-001"
         />
       </div>
@@ -328,7 +380,9 @@ export default function Index() {
         <Input
           id="productName"
           value={productFormData.name}
-          onChange={(e) => setProductFormData(prev => ({ ...prev, name: e.target.value }))}
+          onChange={(e) =>
+            setProductFormData((prev) => ({ ...prev, name: e.target.value }))
+          }
           placeholder="Enter product name"
         />
       </div>
@@ -337,8 +391,8 @@ export default function Index() {
         <Label htmlFor="category">Category *</Label>
         <Select
           value={productFormData.category}
-          onValueChange={(value: Product["category"]) => 
-            setProductFormData(prev => ({ ...prev, category: value }))
+          onValueChange={(value: Product["category"]) =>
+            setProductFormData((prev) => ({ ...prev, category: value }))
           }
         >
           <SelectTrigger>
@@ -361,7 +415,9 @@ export default function Index() {
             id="price"
             type="number"
             value={productFormData.price}
-            onChange={(e) => setProductFormData(prev => ({ ...prev, price: e.target.value }))}
+            onChange={(e) =>
+              setProductFormData((prev) => ({ ...prev, price: e.target.value }))
+            }
             placeholder="0"
           />
         </div>
@@ -371,7 +427,9 @@ export default function Index() {
             id="stock"
             type="number"
             value={productFormData.stock}
-            onChange={(e) => setProductFormData(prev => ({ ...prev, stock: e.target.value }))}
+            onChange={(e) =>
+              setProductFormData((prev) => ({ ...prev, stock: e.target.value }))
+            }
             placeholder="0"
           />
         </div>
@@ -382,7 +440,12 @@ export default function Index() {
         <Textarea
           id="description"
           value={productFormData.description}
-          onChange={(e) => setProductFormData(prev => ({ ...prev, description: e.target.value }))}
+          onChange={(e) =>
+            setProductFormData((prev) => ({
+              ...prev,
+              description: e.target.value,
+            }))
+          }
           placeholder="Enter product description"
           rows={3}
         />
@@ -419,7 +482,9 @@ export default function Index() {
                 variant="destructive"
                 size="sm"
                 className="absolute top-2 right-2"
-                onClick={() => setProductFormData(prev => ({ ...prev, image: "" }))}
+                onClick={() =>
+                  setProductFormData((prev) => ({ ...prev, image: "" }))
+                }
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -443,8 +508,12 @@ export default function Index() {
                 className="h-10 w-auto"
               />
               <div>
-                <h1 className="text-xl font-bold text-primary">RKM LOOM SPARES</h1>
-                <p className="text-sm text-muted-foreground">AI-Powered Textile Solutions</p>
+                <h1 className="text-xl font-bold text-primary">
+                  RKM LOOM SPARES
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  AI-Powered Textile Solutions
+                </p>
               </div>
             </div>
 
@@ -482,7 +551,11 @@ export default function Index() {
               className="md:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </Button>
           </div>
 
@@ -531,7 +604,11 @@ export default function Index() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+        <Tabs
+          value={selectedTab}
+          onValueChange={setSelectedTab}
+          className="w-full"
+        >
           {/* AI Chat Assistant */}
           <TabsContent value="chat" className="space-y-4">
             <Card className="h-[600px] flex flex-col">
@@ -550,12 +627,18 @@ export default function Index() {
                       <div
                         key={message.id}
                         className={`flex items-start space-x-3 ${
-                          message.type === "user" ? "flex-row-reverse space-x-reverse" : ""
+                          message.type === "user"
+                            ? "flex-row-reverse space-x-reverse"
+                            : ""
                         }`}
                       >
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
-                            {message.type === "bot" ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                            {message.type === "bot" ? (
+                              <Bot className="h-4 w-4" />
+                            ) : (
+                              <User className="h-4 w-4" />
+                            )}
                           </AvatarFallback>
                         </Avatar>
                         <div
@@ -589,12 +672,23 @@ export default function Index() {
                     <Button
                       variant={isRecording ? "destructive" : "outline"}
                       size="icon"
-                      onClick={isRecording ? stopVoiceRecognition : startVoiceRecognition}
+                      onClick={
+                        isRecording
+                          ? stopVoiceRecognition
+                          : startVoiceRecognition
+                      }
                       className={isRecording ? "animate-pulse" : ""}
                     >
-                      {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                      {isRecording ? (
+                        <MicOff className="h-4 w-4" />
+                      ) : (
+                        <Mic className="h-4 w-4" />
+                      )}
                     </Button>
-                    <Button onClick={sendMessage} disabled={!inputMessage.trim()}>
+                    <Button
+                      onClick={sendMessage}
+                      disabled={!inputMessage.trim()}
+                    >
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>
@@ -623,9 +717,15 @@ export default function Index() {
                     className="pl-10 w-full sm:w-64"
                   />
                 </div>
-                <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
+                <Dialog
+                  open={isAddProductOpen}
+                  onOpenChange={setIsAddProductOpen}
+                >
                   <DialogTrigger asChild>
-                    <Button className="w-full sm:w-auto" onClick={resetProductForm}>
+                    <Button
+                      className="w-full sm:w-auto"
+                      onClick={resetProductForm}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Product
                     </Button>
@@ -636,7 +736,10 @@ export default function Index() {
                     </DialogHeader>
                     <ProductForm />
                     <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsAddProductOpen(false)}>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsAddProductOpen(false)}
+                      >
                         Cancel
                       </Button>
                       <Button onClick={handleAddProduct}>Add Product</Button>
@@ -648,7 +751,10 @@ export default function Index() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => (
-                <Card key={product.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={product.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardHeader className="pb-2">
                     {product.image && (
                       <div className="w-full h-48 mb-3 rounded-lg overflow-hidden">
@@ -661,15 +767,19 @@ export default function Index() {
                     )}
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-lg">{product.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground font-mono">{product.code}</p>
+                        <CardTitle className="text-lg">
+                          {product.name}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground font-mono">
+                          {product.code}
+                        </p>
                         <Badge variant="outline" className="mt-1">
                           {product.category}
                         </Badge>
                       </div>
                       <div className="flex space-x-1">
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="icon"
                           onClick={() => handleEditProduct(product)}
                         >
@@ -683,14 +793,19 @@ export default function Index() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Delete Product
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete "{product.name}"? This action cannot be undone.
+                                Are you sure you want to delete "{product.name}
+                                "? This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteProduct(product.id)}
+                              >
                                 Delete
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -705,7 +820,9 @@ export default function Index() {
                     </p>
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-lg font-semibold">₹{product.price.toLocaleString()}</p>
+                        <p className="text-lg font-semibold">
+                          ₹{product.price.toLocaleString()}
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           Stock: {product.stock} units
                         </p>
@@ -722,14 +839,20 @@ export default function Index() {
             </div>
 
             {/* Edit Product Dialog */}
-            <Dialog open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
+            <Dialog
+              open={isEditProductOpen}
+              onOpenChange={setIsEditProductOpen}
+            >
               <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle>Edit Product</DialogTitle>
                 </DialogHeader>
                 <ProductForm isEdit={true} />
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsEditProductOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditProductOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleUpdateProduct}>Update Product</Button>
@@ -741,11 +864,13 @@ export default function Index() {
           {/* Analytics Dashboard */}
           <TabsContent value="analytics" className="space-y-4">
             <h2 className="text-2xl font-bold">Business Analytics</h2>
-            
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Products
+                  </CardTitle>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -758,12 +883,17 @@ export default function Index() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Stock Value</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Stock Value
+                  </CardTitle>
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    ₹{products.reduce((sum, p) => sum + (p.price * p.stock), 0).toLocaleString()}
+                    ₹
+                    {products
+                      .reduce((sum, p) => sum + p.price * p.stock, 0)
+                      .toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Current inventory value
@@ -773,12 +903,14 @@ export default function Index() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Low Stock Items</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Low Stock Items
+                  </CardTitle>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {products.filter(p => p.stock <= 20).length}
+                    {products.filter((p) => p.stock <= 20).length}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Require restocking
@@ -788,7 +920,9 @@ export default function Index() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">AI Interactions</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    AI Interactions
+                  </CardTitle>
                   <MessageCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -806,22 +940,38 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {LOOM_CATEGORIES.map(category => {
-                    const categoryProducts = products.filter(p => p.category === category);
-                    const categoryStock = categoryProducts.reduce((sum, p) => sum + p.stock, 0);
-                    const categoryValue = categoryProducts.reduce((sum, p) => sum + (p.price * p.stock), 0);
-                    
+                  {LOOM_CATEGORIES.map((category) => {
+                    const categoryProducts = products.filter(
+                      (p) => p.category === category,
+                    );
+                    const categoryStock = categoryProducts.reduce(
+                      (sum, p) => sum + p.stock,
+                      0,
+                    );
+                    const categoryValue = categoryProducts.reduce(
+                      (sum, p) => sum + p.price * p.stock,
+                      0,
+                    );
+
                     return (
-                      <div key={category} className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                      <div
+                        key={category}
+                        className="flex justify-between items-center p-3 bg-muted rounded-lg"
+                      >
                         <div>
                           <h4 className="font-medium">{category}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {categoryProducts.length} products • {categoryStock} units
+                            {categoryProducts.length} products • {categoryStock}{" "}
+                            units
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">₹{categoryValue.toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">Total Value</p>
+                          <p className="font-semibold">
+                            ₹{categoryValue.toLocaleString()}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Total Value
+                          </p>
                         </div>
                       </div>
                     );
