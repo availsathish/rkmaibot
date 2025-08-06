@@ -40,6 +40,7 @@ interface Message {
 
 interface Product {
   id: string;
+  code: string;
   name: string;
   category: "TOYOTA" | "TSUDAKOMA" | "PICANOL" | "STAUBLI" | "ITEMA";
   price: number;
@@ -65,6 +66,7 @@ export default function Index() {
   const [products, setProducts] = useState<Product[]>([
     {
       id: "1",
+      code: "RKM-TOY-001",
       name: "Shuttle Loom Reed",
       category: "TOYOTA",
       price: 2500,
@@ -74,6 +76,7 @@ export default function Index() {
     },
     {
       id: "2",
+      code: "RKM-TSU-002",
       name: "Heddle Hooks Set",
       category: "TSUDAKOMA",
       price: 150,
@@ -83,6 +86,7 @@ export default function Index() {
     },
     {
       id: "3",
+      code: "RKM-PIC-003",
       name: "Adjustable Loom Temple",
       category: "PICANOL",
       price: 3200,
@@ -98,6 +102,7 @@ export default function Index() {
   const [isEditProductOpen, setIsEditProductOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productFormData, setProductFormData] = useState({
+    code: "",
     name: "",
     category: "" as Product["category"],
     price: "",
@@ -228,6 +233,7 @@ export default function Index() {
 
   const resetProductForm = () => {
     setProductFormData({
+      code: "",
       name: "",
       category: "" as Product["category"],
       price: "",
@@ -238,12 +244,13 @@ export default function Index() {
   };
 
   const handleAddProduct = () => {
-    if (!productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
+    if (!productFormData.code || !productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
       return;
     }
 
     const newProduct: Product = {
       id: Date.now().toString(),
+      code: productFormData.code,
       name: productFormData.name,
       category: productFormData.category,
       price: parseFloat(productFormData.price),
@@ -260,6 +267,7 @@ export default function Index() {
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
     setProductFormData({
+      code: product.code,
       name: product.name,
       category: product.category,
       price: product.price.toString(),
@@ -271,12 +279,13 @@ export default function Index() {
   };
 
   const handleUpdateProduct = () => {
-    if (!editingProduct || !productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
+    if (!editingProduct || !productFormData.code || !productFormData.name || !productFormData.category || !productFormData.price || !productFormData.stock) {
       return;
     }
 
     const updatedProduct: Product = {
       ...editingProduct,
+      code: productFormData.code,
       name: productFormData.name,
       category: productFormData.category,
       price: parseFloat(productFormData.price),
@@ -298,11 +307,22 @@ export default function Index() {
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const ProductForm = ({ isEdit = false }) => (
     <div className="space-y-4">
+      <div>
+        <Label htmlFor="productCode">Product Code *</Label>
+        <Input
+          id="productCode"
+          value={productFormData.code}
+          onChange={(e) => setProductFormData(prev => ({ ...prev, code: e.target.value }))}
+          placeholder="e.g., RKM-TOY-001"
+        />
+      </div>
+
       <div>
         <Label htmlFor="productName">Product Name *</Label>
         <Input
@@ -642,6 +662,7 @@ export default function Index() {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-lg">{product.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground font-mono">{product.code}</p>
                         <Badge variant="outline" className="mt-1">
                           {product.category}
                         </Badge>
