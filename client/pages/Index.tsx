@@ -1345,7 +1345,12 @@ export default function Index() {
                     <DialogHeader>
                       <DialogTitle>Add New Product</DialogTitle>
                     </DialogHeader>
-                    <ProductForm />
+                    <ProductForm
+                      productFormData={productFormData}
+                      setProductFormData={setProductFormData}
+                      fileInputRef={fileInputRef}
+                      handleImageUpload={handleImageUpload}
+                    />
                     <DialogFooter>
                       <Button
                         variant="outline"
