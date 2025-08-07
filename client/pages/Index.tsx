@@ -1026,13 +1026,13 @@ export default function Index() {
                               </AvatarFallback>
                             </Avatar>
                             <div
-                              className={`rounded-lg px-4 py-2 max-w-md ${
+                              className={`rounded-lg px-4 py-2 max-w-md break-words overflow-hidden ${
                                 message.type === "user"
                                   ? "bg-primary text-primary-foreground ml-auto"
                                   : "bg-muted"
                               }`}
                             >
-                              <p className="text-sm">{message.content}</p>
+                              <p className="text-sm break-words">{message.content}</p>
                               <p className="text-xs opacity-70 mt-1">
                                 {message.timestamp.toLocaleTimeString()}
                               </p>
