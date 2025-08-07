@@ -35,7 +35,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import {
   Mic,
@@ -140,19 +147,23 @@ const LOOM_CATEGORIES = [
 const FAQ_DATA = [
   {
     question: "What loom types do you support?",
-    answer: "We support all major loom manufacturers: Toyota, Tsudakoma, Picanol, Staubli, and Itema. Our parts are compatible with various loom models from these brands.",
+    answer:
+      "We support all major loom manufacturers: Toyota, Tsudakoma, Picanol, Staubli, and Itema. Our parts are compatible with various loom models from these brands.",
   },
   {
     question: "Do you provide warranty on spare parts?",
-    answer: "Yes, all RKM Loom Spares come with a 1-year warranty. We use premium materials and follow strict quality control processes.",
+    answer:
+      "Yes, all RKM Loom Spares come with a 1-year warranty. We use premium materials and follow strict quality control processes.",
   },
   {
     question: "What is your delivery time?",
-    answer: "Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days across India.",
+    answer:
+      "Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days across India.",
   },
   {
     question: "Can you help identify unknown spare parts?",
-    answer: "Yes! Use our image recognition feature to upload a photo of your spare part, and our AI will help identify it and suggest compatible products.",
+    answer:
+      "Yes! Use our image recognition feature to upload a photo of your spare part, and our AI will help identify it and suggest compatible products.",
   },
 ];
 
@@ -161,8 +172,8 @@ const TAMIL_TRANSLATIONS = {
   "stock check": "ஸ்டாக் சரிபார்",
   "add to cart": "கார்ட்டில் சேர்",
   "price check": "விலை சர��பார்",
-  "quotation": "மதிப்பீடு",
-  "compatible": "பொருத்தம்",
+  quotation: "மதிப்பீடு",
+  compatible: "பொருத்தம்",
 };
 
 // ProductForm component extracted to fix input typing issues
@@ -179,29 +190,31 @@ interface ProductFormProps {
     tags: string;
     specifications: string;
   };
-  setProductFormData: React.Dispatch<React.SetStateAction<{
-    code: string;
-    name: string;
-    category: Product["category"];
-    price: string;
-    stock: string;
-    description: string;
-    image: string;
-    compatibility: string;
-    tags: string;
-    specifications: string;
-  }>>;
+  setProductFormData: React.Dispatch<
+    React.SetStateAction<{
+      code: string;
+      name: string;
+      category: Product["category"];
+      price: string;
+      stock: string;
+      description: string;
+      image: string;
+      compatibility: string;
+      tags: string;
+      specifications: string;
+    }>
+  >;
   fileInputRef: React.RefObject<HTMLInputElement>;
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isEdit?: boolean;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ 
-  productFormData, 
-  setProductFormData, 
-  fileInputRef, 
-  handleImageUpload, 
-  isEdit = false 
+const ProductForm: React.FC<ProductFormProps> = ({
+  productFormData,
+  setProductFormData,
+  fileInputRef,
+  handleImageUpload,
+  isEdit = false,
 }) => (
   <div className="space-y-4">
     <div>
@@ -282,19 +295,27 @@ const ProductForm: React.FC<ProductFormProps> = ({
         id="compatibility"
         value={productFormData.compatibility}
         onChange={(e) =>
-          setProductFormData((prev) => ({ ...prev, compatibility: e.target.value }))
+          setProductFormData((prev) => ({
+            ...prev,
+            compatibility: e.target.value,
+          }))
         }
         placeholder="e.g., Toyota G810, Toyota G820"
       />
     </div>
 
     <div>
-      <Label htmlFor="specifications">Specifications (key:value, comma-separated)</Label>
+      <Label htmlFor="specifications">
+        Specifications (key:value, comma-separated)
+      </Label>
       <Input
         id="specifications"
         value={productFormData.specifications}
         onChange={(e) =>
-          setProductFormData((prev) => ({ ...prev, specifications: e.target.value }))
+          setProductFormData((prev) => ({
+            ...prev,
+            specifications: e.target.value,
+          }))
         }
         placeholder="e.g., material:steel, weight:2kg, size:10cm"
       />
@@ -399,7 +420,11 @@ export default function Index() {
         "https://images.unsplash.com/photo-1565731137738-b2a2316cc7e4?w=400&h=300&fit=crop",
       compatibility: ["Toyota G810", "Toyota G820", "Toyota G6"],
       tags: ["reed", "shuttle", "weaving"],
-      specifications: { material: "stainless steel", dents: "120", width: "190cm" },
+      specifications: {
+        material: "stainless steel",
+        dents: "120",
+        width: "190cm",
+      },
       isLowStock: false,
       lastRestocked: new Date(),
     },
@@ -415,7 +440,11 @@ export default function Index() {
         "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
       compatibility: ["Tsudakoma ZAX", "Tsudakoma ZW", "Tsudakoma ZU"],
       tags: ["heddle", "hooks", "accessories"],
-      specifications: { material: "hardened steel", quantity: "100", size: "standard" },
+      specifications: {
+        material: "hardened steel",
+        quantity: "100",
+        size: "standard",
+      },
       isLowStock: false,
       lastRestocked: new Date(),
     },
@@ -431,7 +460,11 @@ export default function Index() {
         "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
       compatibility: ["Picanol OMNIplus", "Picanol TERRAplus", "Picanol GTMax"],
       tags: ["temple", "adjustable", "fabric"],
-      specifications: { width: "adjustable", material: "aluminum", weight: "1.5kg" },
+      specifications: {
+        width: "adjustable",
+        material: "aluminum",
+        weight: "1.5kg",
+      },
       isLowStock: true,
       lastRestocked: new Date(),
     },
@@ -445,7 +478,11 @@ export default function Index() {
       description: "High-performance piston rings for Toyota Airjet looms",
       compatibility: ["Toyota JAT710", "Toyota JAT810", "Toyota JAT610"],
       tags: ["piston", "rings", "airjet"],
-      specifications: { material: "carbon steel", diameter: "25mm", thickness: "2mm" },
+      specifications: {
+        material: "carbon steel",
+        diameter: "25mm",
+        thickness: "2mm",
+      },
       isLowStock: false,
       lastRestocked: new Date(),
     },
@@ -459,13 +496,17 @@ export default function Index() {
       description: "Standard bobbin holders for Staubli looms",
       compatibility: ["Staubli ALPHA 500", "Staubli ALPHA 400"],
       tags: ["bobbin", "holders", "accessories"],
-      specifications: { material: "plastic", color: "white", capacity: "standard" },
+      specifications: {
+        material: "plastic",
+        color: "white",
+        capacity: "standard",
+      },
       isLowStock: false,
       lastRestocked: new Date(),
     },
     {
       id: "6",
-      code: "RKM-ITE-006", 
+      code: "RKM-ITE-006",
       name: "Heald Wires",
       category: "ITEMA",
       price: 25,
@@ -473,7 +514,11 @@ export default function Index() {
       description: "Premium heald wires for Itema looms",
       compatibility: ["Itema A9500", "Itema R9500"],
       tags: ["heald", "wires", "weaving"],
-      specifications: { material: "high carbon steel", length: "25cm", gauge: "0.8mm" },
+      specifications: {
+        material: "high carbon steel",
+        length: "25cm",
+        gauge: "0.8mm",
+      },
       isLowStock: false,
       lastRestocked: new Date(),
     },
@@ -540,8 +585,8 @@ export default function Index() {
 
   const checkStockLevels = () => {
     const newAlerts: StockAlert[] = [];
-    
-    products.forEach(product => {
+
+    products.forEach((product) => {
       if (product.stock === 0) {
         newAlerts.push({
           id: Date.now().toString() + product.id,
@@ -561,21 +606,23 @@ export default function Index() {
           read: false,
         });
         // Update product low stock status
-        setProducts(prev => prev.map(p => 
-          p.id === product.id ? { ...p, isLowStock: true } : p
-        ));
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === product.id ? { ...p, isLowStock: true } : p,
+          ),
+        );
       }
     });
 
     if (newAlerts.length > 0) {
-      setStockAlerts(prev => [...prev, ...newAlerts]);
-      
+      setStockAlerts((prev) => [...prev, ...newAlerts]);
+
       if (restockNotifications) {
         // Show browser notification
         if (Notification.permission === "granted") {
           new Notification("Stock Alert", {
             body: `${newAlerts.length} products need attention`,
-            icon: "/favicon.ico"
+            icon: "/favicon.ico",
           });
         }
       }
@@ -624,29 +671,34 @@ export default function Index() {
     }, 1000);
   };
 
-  const processShoppingCommands = (input: string): { itemsAdded: number; response: string } => {
+  const processShoppingCommands = (
+    input: string,
+  ): { itemsAdded: number; response: string } => {
     const lowerInput = input.toLowerCase();
     let itemsAdded = 0;
     let response = "";
 
     // Parse commands like "add 10 bobbin holders and 5 heald wires"
-    const addMatches = lowerInput.match(/(?:add|சேர்)\s+(\d+)\s+([^,\s]+(?:\s+[^,\s]+)*)/g);
-    
+    const addMatches = lowerInput.match(
+      /(?:add|சேர்)\s+(\d+)\s+([^,\s]+(?:\s+[^,\s]+)*)/g,
+    );
+
     if (addMatches) {
       const addedItems: string[] = [];
-      
-      addMatches.forEach(match => {
+
+      addMatches.forEach((match) => {
         const parts = match.match(/(?:add|சேர்)\s+(\d+)\s+(.+)/);
         if (parts) {
           const quantity = parseInt(parts[1]);
           const productName = parts[2].trim();
-          
+
           // Find matching product
-          const matchingProduct = products.find(p => 
-            p.name.toLowerCase().includes(productName) ||
-            p.tags?.some(tag => tag.toLowerCase().includes(productName))
+          const matchingProduct = products.find(
+            (p) =>
+              p.name.toLowerCase().includes(productName) ||
+              p.tags?.some((tag) => tag.toLowerCase().includes(productName)),
           );
-          
+
           if (matchingProduct) {
             addToEnquiryCart(matchingProduct.id, quantity);
             addedItems.push(`${quantity}x ${matchingProduct.name}`);
@@ -654,18 +706,24 @@ export default function Index() {
           }
         }
       });
-      
+
       if (addedItems.length > 0) {
         response = `Added to your enquiry cart: ${addedItems.join(", ")}. Total items: ${itemsAdded}. Would you like to generate an estimation?`;
       }
     }
 
     // Handle stock check commands
-    if (lowerInput.includes("stock") || lowerInput.includes("available") || lowerInput.includes("ஸ்டாக்")) {
-      const productName = lowerInput.replace(/(check|stock|available|ஸ்டாக்|சரிபார்)/g, "").trim();
+    if (
+      lowerInput.includes("stock") ||
+      lowerInput.includes("available") ||
+      lowerInput.includes("ஸ்டாக்")
+    ) {
+      const productName = lowerInput
+        .replace(/(check|stock|available|ஸ்டாக்|சரிபார்)/g, "")
+        .trim();
       if (productName) {
-        const matchingProduct = products.find(p => 
-          p.name.toLowerCase().includes(productName)
+        const matchingProduct = products.find((p) =>
+          p.name.toLowerCase().includes(productName),
         );
         if (matchingProduct) {
           response = `${matchingProduct.name} (${matchingProduct.code}): ${matchingProduct.stock} units in stock. Price: ₹${matchingProduct.price.toLocaleString()}`;
@@ -675,7 +733,11 @@ export default function Index() {
     }
 
     // Handle compatibility checks
-    if (lowerInput.includes("compatible") || lowerInput.includes("compatibility") || lowerInput.includes("பொருத்தம்")) {
+    if (
+      lowerInput.includes("compatible") ||
+      lowerInput.includes("compatibility") ||
+      lowerInput.includes("பொருத்தம்")
+    ) {
       response = handleCompatibilityCheck(input);
       return { itemsAdded: 0, response };
     }
@@ -685,158 +747,187 @@ export default function Index() {
 
   const handleCompatibilityCheck = (input: string): string => {
     // Extract loom model from input
-    const modelMatches = input.match(/(G\d+|JAT\d+|ZAX|ZW|OMNIplus|TERRAplus|ALPHA\s+\d+|A\d+|R\d+)/i);
-    
+    const modelMatches = input.match(
+      /(G\d+|JAT\d+|ZAX|ZW|OMNIplus|TERRAplus|ALPHA\s+\d+|A\d+|R\d+)/i,
+    );
+
     if (modelMatches) {
       const model = modelMatches[0];
-      const compatibleProducts = products.filter(p => 
-        p.compatibility?.some(compat => compat.toLowerCase().includes(model.toLowerCase()))
+      const compatibleProducts = products.filter((p) =>
+        p.compatibility?.some((compat) =>
+          compat.toLowerCase().includes(model.toLowerCase()),
+        ),
       );
-      
+
       if (compatibleProducts.length > 0) {
-        const productList = compatibleProducts.map(p => `${p.name} (${p.code})`).join(", ");
+        const productList = compatibleProducts
+          .map((p) => `${p.name} (${p.code})`)
+          .join(", ");
         return `Compatible parts for ${model}: ${productList}. Would you like details on any specific part?`;
       } else {
         return `No direct matches found for ${model}. Let me check our catalog for similar models or contact our technical team for assistance.`;
       }
     }
-    
+
     return "Please specify the loom model (e.g., Toyota G810, Tsudakoma ZAX) to check compatibility.";
   };
 
-  const getBotResponse = (userInput: string): { content: string; recommendations?: Product[] } => {
+  const getBotResponse = (
+    userInput: string,
+  ): { content: string; recommendations?: Product[] } => {
     const input = userInput.toLowerCase();
-    
+
     // Check for FAQ matches
-    const faqMatch = FAQ_DATA.find(faq => 
-      input.includes(faq.question.toLowerCase().split(' ').slice(0, 3).join(' '))
+    const faqMatch = FAQ_DATA.find((faq) =>
+      input.includes(
+        faq.question.toLowerCase().split(" ").slice(0, 3).join(" "),
+      ),
     );
-    
+
     if (faqMatch) {
       return { content: faqMatch.answer };
     }
 
     // Handle comparison requests
-    if (input.includes("compare") || input.includes("difference") || input.includes("vs")) {
+    if (
+      input.includes("compare") ||
+      input.includes("difference") ||
+      input.includes("vs")
+    ) {
       return {
-        content: "I can help you compare products! Use the Product Comparison feature or tell me which specific products you'd like to compare (e.g., 'Compare Toyota reed vs Tsudakoma reed')."
+        content:
+          "I can help you compare products! Use the Product Comparison feature or tell me which specific products you'd like to compare (e.g., 'Compare Toyota reed vs Tsudakoma reed').",
       };
     }
 
     // Product recommendations based on queries
     if (input.includes("piston rings") && input.includes("airjet")) {
-      const recommendations = products.filter(p => 
-        p.tags?.includes("piston") || p.tags?.includes("airjet")
+      const recommendations = products.filter(
+        (p) => p.tags?.includes("piston") || p.tags?.includes("airjet"),
       );
       return {
-        content: "I found piston rings for Airjet looms! Here are the available options:",
-        recommendations
+        content:
+          "I found piston rings for Airjet looms! Here are the available options:",
+        recommendations,
       };
     }
 
     if (input.includes("reed") || input.includes("shuttle")) {
-      const recommendations = products.filter(p => 
-        p.tags?.includes("reed") || p.tags?.includes("shuttle")
+      const recommendations = products.filter(
+        (p) => p.tags?.includes("reed") || p.tags?.includes("shuttle"),
       );
       return {
         content: "Here are the reed and shuttle-related parts available:",
-        recommendations
+        recommendations,
       };
     }
 
     if (input.includes("heddle") || input.includes("hooks")) {
-      const recommendations = products.filter(p => 
-        p.tags?.includes("heddle") || p.tags?.includes("hooks")
+      const recommendations = products.filter(
+        (p) => p.tags?.includes("heddle") || p.tags?.includes("hooks"),
       );
       return {
         content: "I found heddle hooks and related accessories:",
-        recommendations
+        recommendations,
       };
     }
 
     if (input.includes("temple")) {
-      const recommendations = products.filter(p => 
-        p.tags?.includes("temple")
+      const recommendations = products.filter((p) =>
+        p.tags?.includes("temple"),
       );
       return {
         content: "Here are the temple options for your loom:",
-        recommendations
+        recommendations,
       };
     }
 
     // Category-specific responses
     if (input.includes("toyota")) {
-      const recommendations = products.filter(p => p.category === "TOYOTA");
+      const recommendations = products.filter((p) => p.category === "TOYOTA");
       return {
         content: "Here are all Toyota loom spare parts:",
-        recommendations
+        recommendations,
       };
     }
 
     if (input.includes("tsudakoma")) {
-      const recommendations = products.filter(p => p.category === "TSUDAKOMA");
+      const recommendations = products.filter(
+        (p) => p.category === "TSUDAKOMA",
+      );
       return {
         content: "Here are Tsudakoma loom spare parts:",
-        recommendations
+        recommendations,
       };
     }
 
     if (input.includes("picanol")) {
-      const recommendations = products.filter(p => p.category === "PICANOL");
+      const recommendations = products.filter((p) => p.category === "PICANOL");
       return {
         content: "Here are Picanol loom spare parts:",
-        recommendations
+        recommendations,
       };
     }
 
     if (input.includes("staubli")) {
-      const recommendations = products.filter(p => p.category === "STAUBLI");
+      const recommendations = products.filter((p) => p.category === "STAUBLI");
       return {
         content: "Here are Staubli loom spare parts:",
-        recommendations
+        recommendations,
       };
     }
 
     if (input.includes("itema")) {
-      const recommendations = products.filter(p => p.category === "ITEMA");
+      const recommendations = products.filter((p) => p.category === "ITEMA");
       return {
         content: "Here are Itema loom spare parts:",
-        recommendations
+        recommendations,
       };
     }
 
     if (input.includes("price") || input.includes("cost")) {
       return {
-        content: "Our loom spare prices vary by manufacturer. Toyota parts start from ₹450, Tsudakoma from ₹150, and Picanol from ₹3,200. Would you like specific pricing?"
+        content:
+          "Our loom spare prices vary by manufacturer. Toyota parts start from ₹450, Tsudakoma from ₹150, and Picanol from ₹3,200. Would you like specific pricing?",
       };
     }
 
     if (input.includes("stock") || input.includes("available")) {
-      const lowStockProducts = products.filter(p => p.isLowStock || p.stock <= 20);
+      const lowStockProducts = products.filter(
+        (p) => p.isLowStock || p.stock <= 20,
+      );
       if (lowStockProducts.length > 0) {
         return {
-          content: `Current stock levels: We have good inventory for most parts. However, ${lowStockProducts.length} items are running low: ${lowStockProducts.map(p => p.name).join(", ")}. Would you like real-time stock alerts?`
+          content: `Current stock levels: We have good inventory for most parts. However, ${lowStockProducts.length} items are running low: ${lowStockProducts.map((p) => p.name).join(", ")}. Would you like real-time stock alerts?`,
         };
       }
       return {
-        content: "We maintain good stock levels across all manufacturers. All products are currently well-stocked. I can enable real-time stock monitoring for you."
+        content:
+          "We maintain good stock levels across all manufacturers. All products are currently well-stocked. I can enable real-time stock monitoring for you.",
       };
     }
 
-    if (input.includes("estimation") || input.includes("estimate") || input.includes("quote")) {
+    if (
+      input.includes("estimation") ||
+      input.includes("estimate") ||
+      input.includes("quote")
+    ) {
       return {
-        content: "I can help you generate a professional estimation! Add products to your enquiry cart and I'll create a detailed estimate with pricing and validity period."
+        content:
+          "I can help you generate a professional estimation! Add products to your enquiry cart and I'll create a detailed estimate with pricing and validity period.",
       };
     }
 
     if (input.includes("identify") || input.includes("unknown part")) {
       return {
-        content: "Use our AI-powered image recognition feature! Upload a photo of your spare part and I'll help identify it and check compatibility."
+        content:
+          "Use our AI-powered image recognition feature! Upload a photo of your spare part and I'll help identify it and check compatibility.",
       };
     }
 
     return {
-      content: "I can help you with Toyota, Tsudakoma, Picanol, Staubli, and Itema loom spares. Try commands like 'Add 10 bobbin holders', 'Check stock for reed', 'Is this compatible with Toyota G810?', or use our product comparison feature!"
+      content:
+        "I can help you with Toyota, Tsudakoma, Picanol, Staubli, and Itema loom spares. Try commands like 'Add 10 bobbin holders', 'Check stock for reed', 'Is this compatible with Toyota G810?', or use our product comparison feature!",
     };
   };
 
@@ -848,7 +939,8 @@ export default function Index() {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = currentLanguage === "ta" ? "ta-IN" : "en-US";
+      recognitionRef.current.lang =
+        currentLanguage === "ta" ? "ta-IN" : "en-US";
 
       recognitionRef.current.onstart = () => {
         setIsRecording(true);
@@ -896,7 +988,9 @@ export default function Index() {
     }
   };
 
-  const handleImageRecognition = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageRecognition = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -913,18 +1007,20 @@ export default function Index() {
     }
   };
 
-  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportData = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       try {
         const text = await file.text();
-        const lines = text.split('\n');
-        const headers = lines[0].split(',');
-        
+        const lines = text.split("\n");
+        const headers = lines[0].split(",");
+
         const importedProducts: Product[] = [];
-        
+
         for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',');
+          const values = lines[i].split(",");
           if (values.length >= 6) {
             const product: Product = {
               id: Date.now().toString() + i,
@@ -934,18 +1030,22 @@ export default function Index() {
               price: parseFloat(values[3]?.trim()) || 0,
               stock: parseInt(values[4]?.trim()) || 0,
               description: values[5]?.trim() || "Imported from CSV",
-              compatibility: values[6] ? values[6].split(';').map(s => s.trim()) : undefined,
-              tags: values[7] ? values[7].split(';').map(s => s.trim()) : ["imported"],
+              compatibility: values[6]
+                ? values[6].split(";").map((s) => s.trim())
+                : undefined,
+              tags: values[7]
+                ? values[7].split(";").map((s) => s.trim())
+                : ["imported"],
               isLowStock: parseInt(values[4]?.trim()) <= 20,
               lastRestocked: new Date(),
             };
             importedProducts.push(product);
           }
         }
-        
+
         if (importedProducts.length > 0) {
-          setProducts(prev => [...prev, ...importedProducts]);
-          
+          setProducts((prev) => [...prev, ...importedProducts]);
+
           // Simulate Supabase sync
           setTimeout(() => {
             const botMessage: Message = {
@@ -954,10 +1054,10 @@ export default function Index() {
               content: `✅ Successfully imported ${importedProducts.length} products to database. All data has been automatically synced to Supabase for real-time access.`,
               timestamp: new Date(),
             };
-            setMessages(prev => [...prev, botMessage]);
+            setMessages((prev) => [...prev, botMessage]);
           }, 1000);
         }
-        
+
         setIsImportDataOpen(false);
       } catch (error) {
         console.error("Import error:", error);
@@ -991,12 +1091,15 @@ export default function Index() {
       return;
     }
 
-    const specifications = productFormData.specifications 
+    const specifications = productFormData.specifications
       ? Object.fromEntries(
-          productFormData.specifications.split(',').map(spec => {
-            const [key, value] = spec.split(':');
-            return [key?.trim(), value?.trim()];
-          }).filter(([key, value]) => key && value)
+          productFormData.specifications
+            .split(",")
+            .map((spec) => {
+              const [key, value] = spec.split(":");
+              return [key?.trim(), value?.trim()];
+            })
+            .filter(([key, value]) => key && value),
         )
       : {};
 
@@ -1009,8 +1112,12 @@ export default function Index() {
       stock: parseInt(productFormData.stock),
       description: productFormData.description,
       image: productFormData.image || undefined,
-      compatibility: productFormData.compatibility ? productFormData.compatibility.split(",").map(s => s.trim()) : undefined,
-      tags: productFormData.tags ? productFormData.tags.split(",").map(s => s.trim()) : undefined,
+      compatibility: productFormData.compatibility
+        ? productFormData.compatibility.split(",").map((s) => s.trim())
+        : undefined,
+      tags: productFormData.tags
+        ? productFormData.tags.split(",").map((s) => s.trim())
+        : undefined,
       specifications,
       isLowStock: parseInt(productFormData.stock) <= 20,
       lastRestocked: new Date(),
@@ -1028,7 +1135,7 @@ export default function Index() {
         content: `✅ Product "${newProduct.name}" added successfully and synced to Supabase database.`,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, botMessage]);
+      setMessages((prev) => [...prev, botMessage]);
     }, 500);
   };
 
@@ -1044,7 +1151,11 @@ export default function Index() {
       image: product.image || "",
       compatibility: product.compatibility?.join(", ") || "",
       tags: product.tags?.join(", ") || "",
-      specifications: product.specifications ? Object.entries(product.specifications).map(([k, v]) => `${k}:${v}`).join(", ") : "",
+      specifications: product.specifications
+        ? Object.entries(product.specifications)
+            .map(([k, v]) => `${k}:${v}`)
+            .join(", ")
+        : "",
     });
     setIsEditProductOpen(true);
   };
@@ -1061,12 +1172,15 @@ export default function Index() {
       return;
     }
 
-    const specifications = productFormData.specifications 
+    const specifications = productFormData.specifications
       ? Object.fromEntries(
-          productFormData.specifications.split(',').map(spec => {
-            const [key, value] = spec.split(':');
-            return [key?.trim(), value?.trim()];
-          }).filter(([key, value]) => key && value)
+          productFormData.specifications
+            .split(",")
+            .map((spec) => {
+              const [key, value] = spec.split(":");
+              return [key?.trim(), value?.trim()];
+            })
+            .filter(([key, value]) => key && value),
         )
       : {};
 
@@ -1079,8 +1193,12 @@ export default function Index() {
       stock: parseInt(productFormData.stock),
       description: productFormData.description,
       image: productFormData.image || undefined,
-      compatibility: productFormData.compatibility ? productFormData.compatibility.split(",").map(s => s.trim()) : undefined,
-      tags: productFormData.tags ? productFormData.tags.split(",").map(s => s.trim()) : undefined,
+      compatibility: productFormData.compatibility
+        ? productFormData.compatibility.split(",").map((s) => s.trim())
+        : undefined,
+      tags: productFormData.tags
+        ? productFormData.tags.split(",").map((s) => s.trim())
+        : undefined,
       specifications,
       isLowStock: parseInt(productFormData.stock) <= 20,
     };
@@ -1098,13 +1216,13 @@ export default function Index() {
   };
 
   const addToEnquiryCart = (productId: string, quantity: number = 1) => {
-    setEnquiryCart(prev => {
-      const existingItem = prev.find(item => item.productId === productId);
+    setEnquiryCart((prev) => {
+      const existingItem = prev.find((item) => item.productId === productId);
       if (existingItem) {
-        return prev.map(item => 
-          item.productId === productId 
+        return prev.map((item) =>
+          item.productId === productId
             ? { ...item, quantity: item.quantity + quantity }
-            : item
+            : item,
         );
       }
       return [...prev, { productId, quantity }];
@@ -1112,18 +1230,23 @@ export default function Index() {
   };
 
   const removeFromEnquiryCart = (productId: string) => {
-    setEnquiryCart(prev => prev.filter(item => item.productId !== productId));
+    setEnquiryCart((prev) =>
+      prev.filter((item) => item.productId !== productId),
+    );
   };
 
   const generateEstimation = () => {
     if (enquiryCart.length === 0 || !estimationForm.customerName) return;
 
-    const estimationItems = enquiryCart.map(item => {
-      const product = products.find(p => p.id === item.productId)!;
+    const estimationItems = enquiryCart.map((item) => {
+      const product = products.find((p) => p.id === item.productId)!;
       return { ...item, product };
     });
 
-    const totalAmount = estimationItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    const totalAmount = estimationItems.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0,
+    );
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + 30); // Valid for 30 days
 
@@ -1139,9 +1262,13 @@ export default function Index() {
       validUntil,
     };
 
-    setEstimations(prev => [...prev, newEstimation]);
+    setEstimations((prev) => [...prev, newEstimation]);
     setEnquiryCart([]);
-    setEstimationForm({ customerName: "", customerEmail: "", customerPhone: "" });
+    setEstimationForm({
+      customerName: "",
+      customerEmail: "",
+      customerPhone: "",
+    });
     setIsEstimationOpen(false);
   };
 
@@ -1157,12 +1284,16 @@ Date: ${estimation.date.toLocaleDateString()}
 Valid Until: ${estimation.validUntil.toLocaleDateString()}
 
 ITEMS:
-${estimation.items.map(item => 
-  `${item.product.name} (${item.product.code})
+${estimation.items
+  .map(
+    (item) =>
+      `${item.product.name} (${item.product.code})
   Quantity: ${item.quantity}
   Unit Price: ₹${item.product.price.toLocaleString()}
   Total: ₹${(item.product.price * item.quantity).toLocaleString()}
-  `).join('\n')}
+  `,
+  )
+  .join("\n")}
 
 TOTAL AMOUNT: ₹${estimation.totalAmount.toLocaleString()}
 
@@ -1177,9 +1308,9 @@ Contact: info@rkmlooms.com | +91-XXXXXXXXXX
     `;
 
     // Create and download PDF
-    const blob = new Blob([pdfContent], { type: 'text/plain' });
+    const blob = new Blob([pdfContent], { type: "text/plain" });
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = `RKM_Estimation_${estimation.id}.txt`;
     document.body.appendChild(link);
@@ -1196,7 +1327,7 @@ Contact: info@rkmlooms.com | +91-XXXXXXXXXX
 ⏰ Valid Until: ${estimation.validUntil.toLocaleDateString()}
 
 📦 Items:
-${estimation.items.map(item => `• ${item.product.name} (${item.product.code}) - Qty: ${item.quantity} - ₹${(item.product.price * item.quantity).toLocaleString()}`).join('\n')}
+${estimation.items.map((item) => `• ${item.product.name} (${item.product.code}) - Qty: ${item.quantity} - ₹${(item.product.price * item.quantity).toLocaleString()}`).join("\n")}
 
 💰 Total: ₹${estimation.totalAmount.toLocaleString()}
 
@@ -1205,19 +1336,22 @@ ${estimation.items.map(item => `• ${item.product.name} (${item.product.code}) 
 
 Contact us to place your order!
 📧 info@rkmlooms.com`;
-    
+
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    window.open(whatsappUrl, "_blank");
   };
 
   const addToComparison = (product: Product) => {
-    if (comparisonProducts.length < 3 && !comparisonProducts.find(p => p.id === product.id)) {
-      setComparisonProducts(prev => [...prev, product]);
+    if (
+      comparisonProducts.length < 3 &&
+      !comparisonProducts.find((p) => p.id === product.id)
+    ) {
+      setComparisonProducts((prev) => [...prev, product]);
     }
   };
 
   const removeFromComparison = (productId: string) => {
-    setComparisonProducts(prev => prev.filter(p => p.id !== productId));
+    setComparisonProducts((prev) => prev.filter((p) => p.id !== productId));
   };
 
   const filteredProducts = products.filter(
@@ -1227,13 +1361,16 @@ Contact us to place your order!
       product.code.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const enquiryCartItems = enquiryCart.map(item => {
-    const product = products.find(p => p.id === item.productId)!;
+  const enquiryCartItems = enquiryCart.map((item) => {
+    const product = products.find((p) => p.id === item.productId)!;
     return { ...item, product };
   });
 
-  const enquiryTotal = enquiryCartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const unreadAlerts = stockAlerts.filter(alert => !alert.read).length;
+  const enquiryTotal = enquiryCartItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  );
+  const unreadAlerts = stockAlerts.filter((alert) => !alert.read).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-primary/5">
@@ -1266,9 +1403,13 @@ Contact us to place your order!
                 <Languages className="h-4 w-4" />
                 <Switch
                   checked={currentLanguage === "ta"}
-                  onCheckedChange={(checked) => setCurrentLanguage(checked ? "ta" : "en")}
+                  onCheckedChange={(checked) =>
+                    setCurrentLanguage(checked ? "ta" : "en")
+                  }
                 />
-                <span className="text-sm">{currentLanguage === "ta" ? "தமிழ்" : "EN"}</span>
+                <span className="text-sm">
+                  {currentLanguage === "ta" ? "தமிழ்" : "EN"}
+                </span>
               </div>
 
               {/* Real-time Stock Toggle */}
@@ -1336,7 +1477,9 @@ Contact us to place your order!
                 <span className="hidden xl:inline">Estimations</span>
                 <span className="xl:hidden">Quotes</span>
                 {enquiryCart.length > 0 && (
-                  <Badge variant="secondary" className="ml-1">{enquiryCart.length}</Badge>
+                  <Badge variant="secondary" className="ml-1">
+                    {enquiryCart.length}
+                  </Badge>
                 )}
               </Button>
               <Button
@@ -1437,7 +1580,9 @@ Contact us to place your order!
                     <Bot className="h-6 w-6 text-primary" />
                     <span>AI Voice Assistant</span>
                     <Badge variant="secondary">
-                      {currentLanguage === "ta" ? "தமிழ் & English" : "Voice + Chat Enabled"}
+                      {currentLanguage === "ta"
+                        ? "தமிழ் & English"
+                        : "Voice + Chat Enabled"}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -1470,13 +1615,15 @@ Contact us to place your order!
                                   : "bg-muted"
                               }`}
                             >
-                              <p className="text-sm break-words">{message.content}</p>
+                              <p className="text-sm break-words">
+                                {message.content}
+                              </p>
                               <p className="text-xs opacity-70 mt-1">
                                 {message.timestamp.toLocaleTimeString()}
                               </p>
                             </div>
                           </div>
-                          
+
                           {/* Product Recommendations */}
                           {message.productRecommendations && (
                             <div className="ml-11 space-y-2">
@@ -1485,42 +1632,64 @@ Contact us to place your order!
                                 <span>Recommended Products:</span>
                               </div>
                               <div className="grid gap-2">
-                                {message.productRecommendations.map((product) => (
-                                  <div key={product.id} className="flex items-center justify-between p-3 bg-white rounded-lg border max-w-full overflow-hidden">
-                                    <div className="flex items-center space-x-3 min-w-0 flex-1">
-                                      {product.image && (
-                                        <img src={product.image} alt={product.name} className="w-12 h-12 object-cover rounded flex-shrink-0" />
-                                      )}
-                                      <div className="min-w-0 flex-1">
-                                        <p className="font-medium text-sm truncate">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground truncate">{product.code}</p>
-                                        <p className="text-sm font-semibold">₹{product.price.toLocaleString()}</p>
-                                        {product.stock <= 20 && (
-                                          <Badge variant="destructive" className="text-xs mt-1">
-                                            Low Stock: {product.stock}
-                                          </Badge>
+                                {message.productRecommendations.map(
+                                  (product) => (
+                                    <div
+                                      key={product.id}
+                                      className="flex items-center justify-between p-3 bg-white rounded-lg border max-w-full overflow-hidden"
+                                    >
+                                      <div className="flex items-center space-x-3 min-w-0 flex-1">
+                                        {product.image && (
+                                          <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            className="w-12 h-12 object-cover rounded flex-shrink-0"
+                                          />
                                         )}
+                                        <div className="min-w-0 flex-1">
+                                          <p className="font-medium text-sm truncate">
+                                            {product.name}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground truncate">
+                                            {product.code}
+                                          </p>
+                                          <p className="text-sm font-semibold">
+                                            ₹{product.price.toLocaleString()}
+                                          </p>
+                                          {product.stock <= 20 && (
+                                            <Badge
+                                              variant="destructive"
+                                              className="text-xs mt-1"
+                                            >
+                                              Low Stock: {product.stock}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="flex space-x-1">
+                                        <Button
+                                          size="sm"
+                                          onClick={() =>
+                                            addToEnquiryCart(product.id)
+                                          }
+                                          className="flex items-center space-x-1"
+                                        >
+                                          <Plus className="h-3 w-3" />
+                                          <span>Add</span>
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() =>
+                                            addToComparison(product)
+                                          }
+                                        >
+                                          <GitCompare className="h-3 w-3" />
+                                        </Button>
                                       </div>
                                     </div>
-                                    <div className="flex space-x-1">
-                                      <Button 
-                                        size="sm" 
-                                        onClick={() => addToEnquiryCart(product.id)}
-                                        className="flex items-center space-x-1"
-                                      >
-                                        <Plus className="h-3 w-3" />
-                                        <span>Add</span>
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => addToComparison(product)}
-                                      >
-                                        <GitCompare className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ))}
+                                  ),
+                                )}
                               </div>
                             </div>
                           )}
@@ -1537,7 +1706,7 @@ Contact us to place your order!
                         value={inputMessage}
                         onChange={(e) => setInputMessage(e.target.value)}
                         placeholder={
-                          currentLanguage === "ta" 
+                          currentLanguage === "ta"
                             ? "Tamil/English में बोलें या type करें - 'Add 10 bobbin holders', 'Check stock', etc."
                             : "Ask about parts, compatibility, or say 'Add 10 bobbin holders and 5 heald wires'..."
                         }
@@ -1570,7 +1739,9 @@ Contact us to place your order!
                     {isListening && (
                       <p className="text-sm text-muted-foreground mt-2 flex items-center">
                         <span className="animate-pulse mr-2">🎙️</span>
-                        {currentLanguage === "ta" ? "கேட்கிறேன்... பேசுங்கள்" : "Listening... Speak now"}
+                        {currentLanguage === "ta"
+                          ? "கேட்கிறேன்... பேசுங்கள்"
+                          : "Listening... Speak now"}
                       </p>
                     )}
                   </div>
@@ -1586,8 +1757,8 @@ Contact us to place your order!
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button 
-                    className="w-full justify-start" 
+                  <Button
+                    className="w-full justify-start"
                     variant="outline"
                     onClick={() => setIsImageRecognitionOpen(true)}
                   >
@@ -1595,49 +1766,63 @@ Contact us to place your order!
                     AI Part Recognition
                   </Button>
 
-                  <Button 
-                    className="w-full justify-start" 
+                  <Button
+                    className="w-full justify-start"
                     variant="outline"
                     onClick={() => setIsComparisonOpen(true)}
                   >
                     <GitCompare className="h-4 w-4 mr-2" />
                     Compare Products ({comparisonProducts.length}/3)
                   </Button>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-2">
                     <h4 className="font-medium text-sm">Smart Commands</h4>
                     <div className="space-y-1">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("Add 10 bobbin holders and 5 heald wires")}
+                        onClick={() =>
+                          setInputMessage(
+                            "Add 10 bobbin holders and 5 heald wires",
+                          )
+                        }
                       >
                         🛒 Add 10 bobbin holders & 5 heald wires
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("Check stock for piston rings")}
+                        onClick={() =>
+                          setInputMessage("Check stock for piston rings")
+                        }
                       >
                         📦 Check stock for piston rings
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("Is this compatible with Toyota G810?")}
+                        onClick={() =>
+                          setInputMessage(
+                            "Is this compatible with Toyota G810?",
+                          )
+                        }
                       >
                         🔧 Is this compatible with Toyota G810?
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("Compare Toyota reed vs Tsudakoma reed")}
+                        onClick={() =>
+                          setInputMessage(
+                            "Compare Toyota reed vs Tsudakoma reed",
+                          )
+                        }
                       >
                         ⚖️ Compare Toyota vs Tsudakoma reed
                       </Button>
@@ -1656,16 +1841,21 @@ Contact us to place your order!
                             <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
                             Real-time monitoring
                           </span>
-                          <Badge variant="outline" className="text-xs">LIVE</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            LIVE
+                          </Badge>
                         </div>
-                        {products.filter(p => p.isLowStock).length > 0 && (
+                        {products.filter((p) => p.isLowStock).length > 0 && (
                           <div className="text-xs text-orange-600">
-                            ⚠️ {products.filter(p => p.isLowStock).length} items low stock
+                            ⚠️ {products.filter((p) => p.isLowStock).length}{" "}
+                            items low stock
                           </div>
                         )}
                       </div>
                     ) : (
-                      <p className="text-xs text-muted-foreground">Enable live monitoring above</p>
+                      <p className="text-xs text-muted-foreground">
+                        Enable live monitoring above
+                      </p>
                     )}
                   </div>
 
@@ -1674,19 +1864,32 @@ Contact us to place your order!
                   <div className="space-y-2">
                     <h4 className="font-medium text-sm">Enquiry Cart</h4>
                     {enquiryCart.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">No items in cart</p>
+                      <p className="text-xs text-muted-foreground">
+                        No items in cart
+                      </p>
                     ) : (
                       <div className="space-y-2">
-                        {enquiryCartItems.slice(0, 3).map(item => (
-                          <div key={item.productId} className="flex justify-between items-center text-xs">
-                            <span className="truncate">{item.product.name}</span>
+                        {enquiryCartItems.slice(0, 3).map((item) => (
+                          <div
+                            key={item.productId}
+                            className="flex justify-between items-center text-xs"
+                          >
+                            <span className="truncate">
+                              {item.product.name}
+                            </span>
                             <span>×{item.quantity}</span>
                           </div>
                         ))}
                         {enquiryCart.length > 3 && (
-                          <p className="text-xs text-muted-foreground">+{enquiryCart.length - 3} more items</p>
+                          <p className="text-xs text-muted-foreground">
+                            +{enquiryCart.length - 3} more items
+                          </p>
                         )}
-                        <Button size="sm" className="w-full" onClick={() => setSelectedTab("estimations")}>
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setSelectedTab("estimations")}
+                        >
                           View Cart (₹{enquiryTotal.toLocaleString()})
                         </Button>
                       </div>
@@ -1711,9 +1914,12 @@ Contact us to place your order!
                     className="pl-10 w-full sm:w-64"
                   />
                 </div>
-                
+
                 {/* Import Data Button */}
-                <Dialog open={isImportDataOpen} onOpenChange={setIsImportDataOpen}>
+                <Dialog
+                  open={isImportDataOpen}
+                  onOpenChange={setIsImportDataOpen}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full sm:w-auto">
                       <Database className="h-4 w-4 mr-2" />
@@ -1726,13 +1932,18 @@ Contact us to place your order!
                     </DialogHeader>
                     <div className="space-y-4">
                       <p className="text-sm text-muted-foreground">
-                        Upload CSV with columns: code, name, category, price, stock, description, compatibility (semicolon-separated), tags (semicolon-separated)
+                        Upload CSV with columns: code, name, category, price,
+                        stock, description, compatibility (semicolon-separated),
+                        tags (semicolon-separated)
                       </p>
                       <div className="p-4 bg-blue-50 rounded-lg">
-                        <p className="text-sm font-medium text-blue-900 mb-2">🔗 Supabase Integration Ready</p>
+                        <p className="text-sm font-medium text-blue-900 mb-2">
+                          🔗 Supabase Integration Ready
+                        </p>
                         <p className="text-xs text-blue-700">
-                          All imported data will be automatically synced to Supabase for real-time access across devices.
-                          Connect to Supabase via MCP for seamless database management.
+                          All imported data will be automatically synced to
+                          Supabase for real-time access across devices. Connect
+                          to Supabase via MCP for seamless database management.
                         </p>
                       </div>
                       <Button
@@ -1754,7 +1965,10 @@ Contact us to place your order!
                 </Dialog>
 
                 {/* Image Recognition Button */}
-                <Dialog open={isImageRecognitionOpen} onOpenChange={setIsImageRecognitionOpen}>
+                <Dialog
+                  open={isImageRecognitionOpen}
+                  onOpenChange={setIsImageRecognitionOpen}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full sm:w-auto">
                       <Camera className="h-4 w-4 mr-2" />
@@ -1767,10 +1981,13 @@ Contact us to place your order!
                     </DialogHeader>
                     <div className="space-y-4">
                       <p className="text-sm text-muted-foreground">
-                        Upload a photo of your spare part and our AI will help identify it and check compatibility
+                        Upload a photo of your spare part and our AI will help
+                        identify it and check compatibility
                       </p>
                       <Button
-                        onClick={() => imageRecognitionInputRef.current?.click()}
+                        onClick={() =>
+                          imageRecognitionInputRef.current?.click()
+                        }
                         className="w-full"
                       >
                         <Camera className="h-4 w-4 mr-2" />
@@ -1783,29 +2000,43 @@ Contact us to place your order!
                         onChange={handleImageRecognition}
                         className="hidden"
                       />
-                      
+
                       {recognitionImage && (
                         <div className="space-y-4">
-                          <img 
-                            src={recognitionImage} 
-                            alt="Recognition input" 
+                          <img
+                            src={recognitionImage}
+                            alt="Recognition input"
                             className="w-full h-48 object-cover rounded-lg border"
                           />
                           {recognitionResult.length > 0 ? (
                             <div className="space-y-2">
-                              <h4 className="font-medium">AI Identified Matches:</h4>
-                              {recognitionResult.map(product => (
-                                <div key={product.id} className="flex justify-between items-center p-3 border rounded-lg">
+                              <h4 className="font-medium">
+                                AI Identified Matches:
+                              </h4>
+                              {recognitionResult.map((product) => (
+                                <div
+                                  key={product.id}
+                                  className="flex justify-between items-center p-3 border rounded-lg"
+                                >
                                   <div>
-                                    <p className="font-medium">{product.name}</p>
-                                    <p className="text-sm text-muted-foreground">{product.code}</p>
-                                    <p className="text-sm font-semibold">₹{product.price.toLocaleString()}</p>
+                                    <p className="font-medium">
+                                      {product.name}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                      {product.code}
+                                    </p>
+                                    <p className="text-sm font-semibold">
+                                      ₹{product.price.toLocaleString()}
+                                    </p>
                                     {product.compatibility && (
-                                      <p className="text-xs text-blue-600">Compatible: {product.compatibility.join(", ")}</p>
+                                      <p className="text-xs text-blue-600">
+                                        Compatible:{" "}
+                                        {product.compatibility.join(", ")}
+                                      </p>
                                     )}
                                   </div>
                                   <div className="flex space-x-2">
-                                    <Button 
+                                    <Button
                                       size="sm"
                                       onClick={() => {
                                         addToEnquiryCart(product.id);
@@ -1814,8 +2045,8 @@ Contact us to place your order!
                                     >
                                       Add to Cart
                                     </Button>
-                                    <Button 
-                                      size="sm" 
+                                    <Button
+                                      size="sm"
                                       variant="outline"
                                       onClick={() => addToComparison(product)}
                                     >
@@ -1828,7 +2059,9 @@ Contact us to place your order!
                           ) : (
                             <div className="flex items-center justify-center py-8">
                               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                              <span className="ml-2">AI analyzing image...</span>
+                              <span className="ml-2">
+                                AI analyzing image...
+                              </span>
                             </div>
                           )}
                         </div>
@@ -1838,7 +2071,10 @@ Contact us to place your order!
                 </Dialog>
 
                 {/* Product Comparison Button */}
-                <Dialog open={isComparisonOpen} onOpenChange={setIsComparisonOpen}>
+                <Dialog
+                  open={isComparisonOpen}
+                  onOpenChange={setIsComparisonOpen}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full sm:w-auto">
                       <GitCompare className="h-4 w-4 mr-2" />
@@ -1852,7 +2088,8 @@ Contact us to place your order!
                     <div className="space-y-4">
                       {comparisonProducts.length === 0 ? (
                         <p className="text-center text-muted-foreground py-8">
-                          No products selected for comparison. Add products from the catalog below.
+                          No products selected for comparison. Add products from
+                          the catalog below.
                         </p>
                       ) : (
                         <div className="overflow-x-auto">
@@ -1860,14 +2097,21 @@ Contact us to place your order!
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Feature</TableHead>
-                                {comparisonProducts.map(product => (
-                                  <TableHead key={product.id} className="text-center">
+                                {comparisonProducts.map((product) => (
+                                  <TableHead
+                                    key={product.id}
+                                    className="text-center"
+                                  >
                                     <div className="space-y-2">
-                                      <p className="font-medium">{product.name}</p>
-                                      <Button 
-                                        size="sm" 
+                                      <p className="font-medium">
+                                        {product.name}
+                                      </p>
+                                      <Button
+                                        size="sm"
                                         variant="ghost"
-                                        onClick={() => removeFromComparison(product.id)}
+                                        onClick={() =>
+                                          removeFromComparison(product.id)
+                                        }
                                       >
                                         <X className="h-3 w-3" />
                                       </Button>
@@ -1878,53 +2122,101 @@ Contact us to place your order!
                             </TableHeader>
                             <TableBody>
                               <TableRow>
-                                <TableCell className="font-medium">Code</TableCell>
-                                {comparisonProducts.map(product => (
-                                  <TableCell key={product.id} className="text-center">{product.code}</TableCell>
+                                <TableCell className="font-medium">
+                                  Code
+                                </TableCell>
+                                {comparisonProducts.map((product) => (
+                                  <TableCell
+                                    key={product.id}
+                                    className="text-center"
+                                  >
+                                    {product.code}
+                                  </TableCell>
                                 ))}
                               </TableRow>
                               <TableRow>
-                                <TableCell className="font-medium">Category</TableCell>
-                                {comparisonProducts.map(product => (
-                                  <TableCell key={product.id} className="text-center">{product.category}</TableCell>
+                                <TableCell className="font-medium">
+                                  Category
+                                </TableCell>
+                                {comparisonProducts.map((product) => (
+                                  <TableCell
+                                    key={product.id}
+                                    className="text-center"
+                                  >
+                                    {product.category}
+                                  </TableCell>
                                 ))}
                               </TableRow>
                               <TableRow>
-                                <TableCell className="font-medium">Price</TableCell>
-                                {comparisonProducts.map(product => (
-                                  <TableCell key={product.id} className="text-center">₹{product.price.toLocaleString()}</TableCell>
+                                <TableCell className="font-medium">
+                                  Price
+                                </TableCell>
+                                {comparisonProducts.map((product) => (
+                                  <TableCell
+                                    key={product.id}
+                                    className="text-center"
+                                  >
+                                    ₹{product.price.toLocaleString()}
+                                  </TableCell>
                                 ))}
                               </TableRow>
                               <TableRow>
-                                <TableCell className="font-medium">Stock</TableCell>
-                                {comparisonProducts.map(product => (
-                                  <TableCell key={product.id} className="text-center">
-                                    <Badge variant={product.stock > 20 ? "default" : "destructive"}>
+                                <TableCell className="font-medium">
+                                  Stock
+                                </TableCell>
+                                {comparisonProducts.map((product) => (
+                                  <TableCell
+                                    key={product.id}
+                                    className="text-center"
+                                  >
+                                    <Badge
+                                      variant={
+                                        product.stock > 20
+                                          ? "default"
+                                          : "destructive"
+                                      }
+                                    >
                                       {product.stock} units
                                     </Badge>
                                   </TableCell>
                                 ))}
                               </TableRow>
                               <TableRow>
-                                <TableCell className="font-medium">Compatibility</TableCell>
-                                {comparisonProducts.map(product => (
-                                  <TableCell key={product.id} className="text-center text-sm">
+                                <TableCell className="font-medium">
+                                  Compatibility
+                                </TableCell>
+                                {comparisonProducts.map((product) => (
+                                  <TableCell
+                                    key={product.id}
+                                    className="text-center text-sm"
+                                  >
                                     {product.compatibility?.join(", ") || "N/A"}
                                   </TableCell>
                                 ))}
                               </TableRow>
-                              {comparisonProducts.some(p => p.specifications) && (
-                                Object.keys(comparisonProducts.find(p => p.specifications)?.specifications || {}).map(specKey => (
+                              {comparisonProducts.some(
+                                (p) => p.specifications,
+                              ) &&
+                                Object.keys(
+                                  comparisonProducts.find(
+                                    (p) => p.specifications,
+                                  )?.specifications || {},
+                                ).map((specKey) => (
                                   <TableRow key={specKey}>
-                                    <TableCell className="font-medium capitalize">{specKey}</TableCell>
-                                    {comparisonProducts.map(product => (
-                                      <TableCell key={product.id} className="text-center">
-                                        {product.specifications?.[specKey] || "N/A"}
+                                    <TableCell className="font-medium capitalize">
+                                      {specKey}
+                                    </TableCell>
+                                    {comparisonProducts.map((product) => (
+                                      <TableCell
+                                        key={product.id}
+                                        className="text-center"
+                                      >
+                                        {product.specifications?.[specKey] ||
+                                          "N/A"}
                                       </TableCell>
                                     ))}
                                   </TableRow>
-                                ))
-                              )}
+                                ))}
                             </TableBody>
                           </Table>
                         </div>
@@ -1950,7 +2242,7 @@ Contact us to place your order!
                     <DialogHeader>
                       <DialogTitle>Add New Product</DialogTitle>
                     </DialogHeader>
-                    <ProductForm 
+                    <ProductForm
                       productFormData={productFormData}
                       setProductFormData={setProductFormData}
                       fileInputRef={fileInputRef}
@@ -1999,8 +2291,12 @@ Contact us to place your order!
                         </Badge>
                         {product.tags && (
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {product.tags.map(tag => (
-                              <Badge key={tag} variant="secondary" className="text-xs">
+                            {product.tags.map((tag) => (
+                              <Badge
+                                key={tag}
+                                variant="secondary"
+                                className="text-xs"
+                              >
                                 {tag}
                               </Badge>
                             ))}
@@ -2064,20 +2360,28 @@ Contact us to place your order!
                     </p>
                     {product.compatibility && (
                       <div className="mb-3">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Compatible with:</p>
-                        <p className="text-xs text-muted-foreground">{product.compatibility.join(", ")}</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">
+                          Compatible with:
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {product.compatibility.join(", ")}
+                        </p>
                       </div>
                     )}
                     {product.specifications && (
                       <div className="mb-3">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Specifications:</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">
+                          Specifications:
+                        </p>
                         <div className="text-xs text-muted-foreground">
-                          {Object.entries(product.specifications).map(([key, value]) => (
-                            <div key={key} className="flex justify-between">
-                              <span className="capitalize">{key}:</span>
-                              <span>{value}</span>
-                            </div>
-                          ))}
+                          {Object.entries(product.specifications).map(
+                            ([key, value]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="capitalize">{key}:</span>
+                                <span>{value}</span>
+                              </div>
+                            ),
+                          )}
                         </div>
                       </div>
                     )}
@@ -2102,15 +2406,15 @@ Contact us to place your order!
                       </Badge>
                     </div>
                     <div className="flex space-x-2">
-                      <Button 
-                        className="flex-1" 
+                      <Button
+                        className="flex-1"
                         size="sm"
                         onClick={() => addToEnquiryCart(product.id)}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add to Enquiry
                       </Button>
-                      <Button 
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => addToComparison(product)}
@@ -2133,12 +2437,12 @@ Contact us to place your order!
                 <DialogHeader>
                   <DialogTitle>Edit Product</DialogTitle>
                 </DialogHeader>
-                <ProductForm 
+                <ProductForm
                   productFormData={productFormData}
                   setProductFormData={setProductFormData}
                   fileInputRef={fileInputRef}
                   handleImageUpload={handleImageUpload}
-                  isEdit={true} 
+                  isEdit={true}
                 />
                 <DialogFooter>
                   <Button
@@ -2171,29 +2475,43 @@ Contact us to place your order!
                   {enquiryCart.length === 0 ? (
                     <div className="text-center py-8">
                       <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No items in enquiry cart</p>
+                      <p className="text-muted-foreground">
+                        No items in enquiry cart
+                      </p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Add products from catalog or use AI commands like "Add 10 bobbin holders"
+                        Add products from catalog or use AI commands like "Add
+                        10 bobbin holders"
                       </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {enquiryCartItems.map(item => (
-                        <div key={item.productId} className="flex items-center justify-between p-3 border rounded-lg">
+                      {enquiryCartItems.map((item) => (
+                        <div
+                          key={item.productId}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
                           <div className="flex items-center space-x-3">
                             {item.product.image && (
-                              <img 
-                                src={item.product.image} 
+                              <img
+                                src={item.product.image}
                                 alt={item.product.name}
                                 className="w-12 h-12 object-cover rounded"
                               />
                             )}
                             <div>
                               <p className="font-medium">{item.product.name}</p>
-                              <p className="text-sm text-muted-foreground">{item.product.code}</p>
-                              <p className="text-sm font-semibold">₹{item.product.price.toLocaleString()} × {item.quantity}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {item.product.code}
+                              </p>
+                              <p className="text-sm font-semibold">
+                                ₹{item.product.price.toLocaleString()} ×{" "}
+                                {item.quantity}
+                              </p>
                               {item.product.isLowStock && (
-                                <Badge variant="destructive" className="text-xs mt-1">
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs mt-1"
+                                >
                                   Low Stock: {item.product.stock} units
                                 </Badge>
                               )}
@@ -2205,17 +2523,25 @@ Contact us to place your order!
                                 size="sm"
                                 variant="outline"
                                 onClick={() => {
-                                  const newCart = enquiryCart.map(cartItem =>
+                                  const newCart = enquiryCart.map((cartItem) =>
                                     cartItem.productId === item.productId
-                                      ? { ...cartItem, quantity: Math.max(1, cartItem.quantity - 1) }
-                                      : cartItem
+                                      ? {
+                                          ...cartItem,
+                                          quantity: Math.max(
+                                            1,
+                                            cartItem.quantity - 1,
+                                          ),
+                                        }
+                                      : cartItem,
                                   );
                                   setEnquiryCart(newCart);
                                 }}
                               >
                                 -
                               </Button>
-                              <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
+                              <span className="text-sm font-medium w-8 text-center">
+                                {item.quantity}
+                              </span>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -2227,23 +2553,27 @@ Contact us to place your order!
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFromEnquiryCart(item.productId)}
+                              onClick={() =>
+                                removeFromEnquiryCart(item.productId)
+                              }
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
                       ))}
-                      
+
                       <Separator />
-                      
+
                       <div className="flex justify-between items-center">
                         <span className="font-semibold">Total:</span>
-                        <span className="text-lg font-bold">₹{enquiryTotal.toLocaleString()}</span>
+                        <span className="text-lg font-bold">
+                          ₹{enquiryTotal.toLocaleString()}
+                        </span>
                       </div>
-                      
-                      <Button 
-                        className="w-full" 
+
+                      <Button
+                        className="w-full"
                         onClick={() => setIsEstimationOpen(true)}
                         disabled={enquiryCart.length === 0}
                       >
@@ -2264,30 +2594,51 @@ Contact us to place your order!
                   {estimations.length === 0 ? (
                     <div className="text-center py-8">
                       <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No estimations generated yet</p>
+                      <p className="text-muted-foreground">
+                        No estimations generated yet
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {estimations.slice(0, 5).map(estimation => (
-                        <div key={estimation.id} className="p-4 border rounded-lg">
+                      {estimations.slice(0, 5).map((estimation) => (
+                        <div
+                          key={estimation.id}
+                          className="p-4 border rounded-lg"
+                        >
                           <div className="flex justify-between items-start mb-2">
                             <div>
-                              <p className="font-medium">{estimation.customerName}</p>
-                              <p className="text-sm text-muted-foreground">{estimation.date.toLocaleDateString()}</p>
-                              <p className="text-xs text-muted-foreground">Valid until: {estimation.validUntil.toLocaleDateString()}</p>
+                              <p className="font-medium">
+                                {estimation.customerName}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {estimation.date.toLocaleDateString()}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Valid until:{" "}
+                                {estimation.validUntil.toLocaleDateString()}
+                              </p>
                             </div>
-                            <Badge variant={estimation.status === "sent" ? "default" : "secondary"}>
+                            <Badge
+                              variant={
+                                estimation.status === "sent"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                            >
                               {estimation.status}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
-                            {estimation.items.length} items • ₹{estimation.totalAmount.toLocaleString()}
+                            {estimation.items.length} items • ₹
+                            {estimation.totalAmount.toLocaleString()}
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
-                              onClick={() => sendEstimationViaWhatsApp(estimation)}
+                              onClick={() =>
+                                sendEstimationViaWhatsApp(estimation)
+                              }
                             >
                               <Phone className="h-3 w-3 mr-1" />
                               WhatsApp
@@ -2296,8 +2647,8 @@ Contact us to place your order!
                               <Mail className="h-3 w-3 mr-1" />
                               Email
                             </Button>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={() => generatePDF(estimation)}
                             >
@@ -2325,7 +2676,12 @@ Contact us to place your order!
                     <Input
                       id="customerName"
                       value={estimationForm.customerName}
-                      onChange={(e) => setEstimationForm(prev => ({ ...prev, customerName: e.target.value }))}
+                      onChange={(e) =>
+                        setEstimationForm((prev) => ({
+                          ...prev,
+                          customerName: e.target.value,
+                        }))
+                      }
                       placeholder="Enter customer name"
                     />
                   </div>
@@ -2335,7 +2691,12 @@ Contact us to place your order!
                       id="customerEmail"
                       type="email"
                       value={estimationForm.customerEmail}
-                      onChange={(e) => setEstimationForm(prev => ({ ...prev, customerEmail: e.target.value }))}
+                      onChange={(e) =>
+                        setEstimationForm((prev) => ({
+                          ...prev,
+                          customerEmail: e.target.value,
+                        }))
+                      }
                       placeholder="customer@example.com"
                     />
                   </div>
@@ -2344,21 +2705,33 @@ Contact us to place your order!
                     <Input
                       id="customerPhone"
                       value={estimationForm.customerPhone}
-                      onChange={(e) => setEstimationForm(prev => ({ ...prev, customerPhone: e.target.value }))}
+                      onChange={(e) =>
+                        setEstimationForm((prev) => ({
+                          ...prev,
+                          customerPhone: e.target.value,
+                        }))
+                      }
                       placeholder="+91 9876543210"
                     />
                   </div>
                   <div className="p-3 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-900">
-                      📄 Estimation will be valid for 30 days and include warranty terms.
+                      📄 Estimation will be valid for 30 days and include
+                      warranty terms.
                     </p>
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsEstimationOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEstimationOpen(false)}
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={generateEstimation} disabled={!estimationForm.customerName}>
+                  <Button
+                    onClick={generateEstimation}
+                    disabled={!estimationForm.customerName}
+                  >
                     Generate Estimation
                   </Button>
                 </DialogFooter>
@@ -2430,7 +2803,7 @@ Contact us to place your order!
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-orange-600">
-                    {products.filter(p => p.isLowStock).length}
+                    {products.filter((p) => p.isLowStock).length}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Items need restocking
@@ -2448,7 +2821,9 @@ Contact us to place your order!
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <RefreshCw className={`h-4 w-4 ${realTimeStockEnabled ? 'text-green-500' : 'text-gray-400'}`} />
+                      <RefreshCw
+                        className={`h-4 w-4 ${realTimeStockEnabled ? "text-green-500" : "text-gray-400"}`}
+                      />
                       <span>Real-time monitoring</span>
                     </div>
                     <Switch
@@ -2456,17 +2831,26 @@ Contact us to place your order!
                       onCheckedChange={setRealTimeStockEnabled}
                     />
                   </div>
-                  
-                  {products.filter(p => p.isLowStock).length > 0 && (
+
+                  {products.filter((p) => p.isLowStock).length > 0 && (
                     <div className="p-4 bg-orange-50 rounded-lg">
-                      <h4 className="font-medium text-orange-900 mb-2">⚠️ Low Stock Alerts</h4>
+                      <h4 className="font-medium text-orange-900 mb-2">
+                        ⚠️ Low Stock Alerts
+                      </h4>
                       <div className="space-y-1">
-                        {products.filter(p => p.isLowStock).map(product => (
-                          <div key={product.id} className="flex justify-between items-center text-sm">
-                            <span>{product.name}</span>
-                            <Badge variant="destructive">{product.stock} units</Badge>
-                          </div>
-                        ))}
+                        {products
+                          .filter((p) => p.isLowStock)
+                          .map((product) => (
+                            <div
+                              key={product.id}
+                              className="flex justify-between items-center text-sm"
+                            >
+                              <span>{product.name}</span>
+                              <Badge variant="destructive">
+                                {product.stock} units
+                              </Badge>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}
@@ -2492,7 +2876,9 @@ Contact us to place your order!
                       (sum, p) => sum + p.price * p.stock,
                       0,
                     );
-                    const lowStockCount = categoryProducts.filter(p => p.isLowStock).length;
+                    const lowStockCount = categoryProducts.filter(
+                      (p) => p.isLowStock,
+                    ).length;
 
                     return (
                       <div
@@ -2505,7 +2891,10 @@ Contact us to place your order!
                             {categoryProducts.length} products • {categoryStock}{" "}
                             units
                             {lowStockCount > 0 && (
-                              <span className="text-orange-600"> • {lowStockCount} low stock</span>
+                              <span className="text-orange-600">
+                                {" "}
+                                • {lowStockCount} low stock
+                              </span>
                             )}
                           </p>
                         </div>
