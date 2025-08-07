@@ -160,7 +160,7 @@ const FAQ_DATA = [
 const TAMIL_TRANSLATIONS = {
   "stock check": "ஸ்டாக் சரிபார்",
   "add to cart": "கார்ட்டில் சேர்",
-  "price check": "விலை சரிபார்",
+  "price check": "விலை சர��பார்",
   "quotation": "மதிப்பீடு",
   "compatible": "பொருத்தம்",
 };
@@ -1239,7 +1239,7 @@ Contact us to place your order!
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-primary/5">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-primary/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl m-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <img
