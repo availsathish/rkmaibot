@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Switch } from "@/components/ui/switch";
 import {
   Mic,
   MicOff,
@@ -65,6 +66,15 @@ import {
   Star,
   Lightbulb,
   Zap,
+  AlertTriangle,
+  CheckCircle,
+  Database,
+  Globe,
+  Languages,
+  GitCompare,
+  RefreshCw,
+  Bell,
+  Truck,
 } from "lucide-react";
 
 interface Message {
@@ -73,6 +83,7 @@ interface Message {
   content: string;
   timestamp: Date;
   productRecommendations?: Product[];
+  language?: "en" | "ta";
 }
 
 interface Product {
@@ -86,6 +97,9 @@ interface Product {
   image?: string;
   compatibility?: string[];
   tags?: string[];
+  specifications?: Record<string, string>;
+  isLowStock?: boolean;
+  lastRestocked?: Date;
 }
 
 interface EnquiryItem {
@@ -94,7 +108,7 @@ interface EnquiryItem {
   notes?: string;
 }
 
-interface Quotation {
+interface Estimation {
   id: string;
   date: Date;
   customerName: string;
@@ -103,6 +117,16 @@ interface Quotation {
   items: (EnquiryItem & { product: Product })[];
   totalAmount: number;
   status: "draft" | "sent" | "accepted" | "rejected";
+  validUntil: Date;
+}
+
+interface StockAlert {
+  id: string;
+  productId: string;
+  productName: string;
+  type: "low_stock" | "out_of_stock" | "restocked";
+  timestamp: Date;
+  read: boolean;
 }
 
 const LOOM_CATEGORIES = [
@@ -112,6 +136,34 @@ const LOOM_CATEGORIES = [
   "STAUBLI",
   "ITEMA",
 ] as const;
+
+const FAQ_DATA = [
+  {
+    question: "What loom types do you support?",
+    answer: "We support all major loom manufacturers: Toyota, Tsudakoma, Picanol, Staubli, and Itema. Our parts are compatible with various loom models from these brands.",
+  },
+  {
+    question: "Do you provide warranty on spare parts?",
+    answer: "Yes, all RKM Loom Spares come with a 1-year warranty. We use premium materials and follow strict quality control processes.",
+  },
+  {
+    question: "What is your delivery time?",
+    answer: "Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days across India.",
+  },
+  {
+    question: "Can you help identify unknown spare parts?",
+    answer: "Yes! Use our image recognition feature to upload a photo of your spare part, and our AI will help identify it and suggest compatible products.",
+  },
+];
+
+// Tamil translations for voice commands
+const TAMIL_TRANSLATIONS = {
+  "stock check": "ஸ்டாக் சரிபார்",
+  "add to cart": "கார்ட்டில் சேர்",
+  "price check": "விலை சரிபார்",
+  "quotation": "மதிப்பீடு",
+  "compatible": "பொருத்தம்",
+};
 
 // ProductForm component extracted to fix input typing issues
 interface ProductFormProps {
@@ -125,6 +177,7 @@ interface ProductFormProps {
     image: string;
     compatibility: string;
     tags: string;
+    specifications: string;
   };
   setProductFormData: React.Dispatch<React.SetStateAction<{
     code: string;
@@ -136,18 +189,19 @@ interface ProductFormProps {
     image: string;
     compatibility: string;
     tags: string;
+    specifications: string;
   }>>;
   fileInputRef: React.RefObject<HTMLInputElement>;
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isEdit?: boolean;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({
-  productFormData,
-  setProductFormData,
-  fileInputRef,
-  handleImageUpload,
-  isEdit = false
+const ProductForm: React.FC<ProductFormProps> = ({ 
+  productFormData, 
+  setProductFormData, 
+  fileInputRef, 
+  handleImageUpload, 
+  isEdit = false 
 }) => (
   <div className="space-y-4">
     <div>
@@ -235,6 +289,18 @@ const ProductForm: React.FC<ProductFormProps> = ({
     </div>
 
     <div>
+      <Label htmlFor="specifications">Specifications (key:value, comma-separated)</Label>
+      <Input
+        id="specifications"
+        value={productFormData.specifications}
+        onChange={(e) =>
+          setProductFormData((prev) => ({ ...prev, specifications: e.target.value }))
+        }
+        placeholder="e.g., material:steel, weight:2kg, size:10cm"
+      />
+    </div>
+
+    <div>
       <Label htmlFor="tags">Tags (comma-separated)</Label>
       <Input
         id="tags"
@@ -306,38 +372,20 @@ const ProductForm: React.FC<ProductFormProps> = ({
   </div>
 );
 
-const FAQ_DATA = [
-  {
-    question: "What loom types do you support?",
-    answer: "We support all major loom manufacturers: Toyota, Tsudakoma, Picanol, Staubli, and Itema. Our parts are compatible with various loom models from these brands.",
-  },
-  {
-    question: "Do you provide warranty on spare parts?",
-    answer: "Yes, all RKM Loom Spares come with a 1-year warranty. We use premium materials and follow strict quality control processes.",
-  },
-  {
-    question: "What is your delivery time?",
-    answer: "Standard delivery takes 3-5 business days, and express delivery takes 1-2 business days across India.",
-  },
-  {
-    question: "Can you help identify unknown spare parts?",
-    answer: "Yes! Use our image recognition feature to upload a photo of your spare part, and our AI will help identify it and suggest compatible products.",
-  },
-];
-
 export default function Index() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       type: "bot",
       content:
-        "Hello! I'm RKM Assistant. I can help you with loom spares, product identification, recommendations, and quotations. How can I assist you today?",
+        "Hello! I'm RKM Assistant. I can help you with loom spares, compatibility checks, product comparisons, and estimations. Try saying 'Add 10 bobbin holders and 5 heald wires' or ask about compatibility!",
       timestamp: new Date(),
     },
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<"en" | "ta">("en");
   const [products, setProducts] = useState<Product[]>([
     {
       id: "1",
@@ -349,8 +397,11 @@ export default function Index() {
       description: "High-quality reed for Toyota shuttle looms",
       image:
         "https://images.unsplash.com/photo-1565731137738-b2a2316cc7e4?w=400&h=300&fit=crop",
-      compatibility: ["Toyota G810", "Toyota G820"],
+      compatibility: ["Toyota G810", "Toyota G820", "Toyota G6"],
       tags: ["reed", "shuttle", "weaving"],
+      specifications: { material: "stainless steel", dents: "120", width: "190cm" },
+      isLowStock: false,
+      lastRestocked: new Date(),
     },
     {
       id: "2",
@@ -362,8 +413,11 @@ export default function Index() {
       description: "Durable heddle hooks for Tsudakoma textile production",
       image:
         "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop",
-      compatibility: ["Tsudakoma ZAX", "Tsudakoma ZW"],
+      compatibility: ["Tsudakoma ZAX", "Tsudakoma ZW", "Tsudakoma ZU"],
       tags: ["heddle", "hooks", "accessories"],
+      specifications: { material: "hardened steel", quantity: "100", size: "standard" },
+      isLowStock: false,
+      lastRestocked: new Date(),
     },
     {
       id: "3",
@@ -371,12 +425,15 @@ export default function Index() {
       name: "Adjustable Loom Temple",
       category: "PICANOL",
       price: 3200,
-      stock: 25,
+      stock: 5,
       description: "Premium adjustable temple for Picanol fabric weaving",
       image:
         "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-      compatibility: ["Picanol OMNIplus", "Picanol TERRAplus"],
+      compatibility: ["Picanol OMNIplus", "Picanol TERRAplus", "Picanol GTMax"],
       tags: ["temple", "adjustable", "fabric"],
+      specifications: { width: "adjustable", material: "aluminum", weight: "1.5kg" },
+      isLowStock: true,
+      lastRestocked: new Date(),
     },
     {
       id: "4",
@@ -386,8 +443,39 @@ export default function Index() {
       price: 450,
       stock: 80,
       description: "High-performance piston rings for Toyota Airjet looms",
-      compatibility: ["Toyota JAT710", "Toyota JAT810"],
+      compatibility: ["Toyota JAT710", "Toyota JAT810", "Toyota JAT610"],
       tags: ["piston", "rings", "airjet"],
+      specifications: { material: "carbon steel", diameter: "25mm", thickness: "2mm" },
+      isLowStock: false,
+      lastRestocked: new Date(),
+    },
+    {
+      id: "5",
+      code: "RKM-STB-005",
+      name: "Bobbin Holders",
+      category: "STAUBLI",
+      price: 75,
+      stock: 200,
+      description: "Standard bobbin holders for Staubli looms",
+      compatibility: ["Staubli ALPHA 500", "Staubli ALPHA 400"],
+      tags: ["bobbin", "holders", "accessories"],
+      specifications: { material: "plastic", color: "white", capacity: "standard" },
+      isLowStock: false,
+      lastRestocked: new Date(),
+    },
+    {
+      id: "6",
+      code: "RKM-ITE-006", 
+      name: "Heald Wires",
+      category: "ITEMA",
+      price: 25,
+      stock: 500,
+      description: "Premium heald wires for Itema looms",
+      compatibility: ["Itema A9500", "Itema R9500"],
+      tags: ["heald", "wires", "weaving"],
+      specifications: { material: "high carbon steel", length: "25cm", gauge: "0.8mm" },
+      isLowStock: false,
+      lastRestocked: new Date(),
     },
   ]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -397,13 +485,18 @@ export default function Index() {
   const [isEditProductOpen, setIsEditProductOpen] = useState(false);
   const [isImportDataOpen, setIsImportDataOpen] = useState(false);
   const [isImageRecognitionOpen, setIsImageRecognitionOpen] = useState(false);
-  const [isQuotationOpen, setIsQuotationOpen] = useState(false);
+  const [isEstimationOpen, setIsEstimationOpen] = useState(false);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [enquiryCart, setEnquiryCart] = useState<EnquiryItem[]>([]);
-  const [quotations, setQuotations] = useState<Quotation[]>([]);
+  const [estimations, setEstimations] = useState<Estimation[]>([]);
+  const [stockAlerts, setStockAlerts] = useState<StockAlert[]>([]);
+  const [comparisonProducts, setComparisonProducts] = useState<Product[]>([]);
   const [recognitionImage, setRecognitionImage] = useState<string>("");
   const [recognitionResult, setRecognitionResult] = useState<Product[]>([]);
-  const [quotationForm, setQuotationForm] = useState({
+  const [realTimeStockEnabled, setRealTimeStockEnabled] = useState(true);
+  const [restockNotifications, setRestockNotifications] = useState(true);
+  const [estimationForm, setEstimationForm] = useState({
     customerName: "",
     customerEmail: "",
     customerPhone: "",
@@ -418,6 +511,7 @@ export default function Index() {
     image: "",
     compatibility: "",
     tags: "",
+    specifications: "",
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -429,8 +523,63 @@ export default function Index() {
     scrollToBottom();
   }, [messages]);
 
+  // Real-time stock monitoring
+  useEffect(() => {
+    if (realTimeStockEnabled) {
+      const interval = setInterval(() => {
+        checkStockLevels();
+      }, 30000); // Check every 30 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [realTimeStockEnabled, products]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const checkStockLevels = () => {
+    const newAlerts: StockAlert[] = [];
+    
+    products.forEach(product => {
+      if (product.stock === 0) {
+        newAlerts.push({
+          id: Date.now().toString() + product.id,
+          productId: product.id,
+          productName: product.name,
+          type: "out_of_stock",
+          timestamp: new Date(),
+          read: false,
+        });
+      } else if (product.stock <= 20 && !product.isLowStock) {
+        newAlerts.push({
+          id: Date.now().toString() + product.id,
+          productId: product.id,
+          productName: product.name,
+          type: "low_stock",
+          timestamp: new Date(),
+          read: false,
+        });
+        // Update product low stock status
+        setProducts(prev => prev.map(p => 
+          p.id === product.id ? { ...p, isLowStock: true } : p
+        ));
+      }
+    });
+
+    if (newAlerts.length > 0) {
+      setStockAlerts(prev => [...prev, ...newAlerts]);
+      
+      if (restockNotifications) {
+        // Show browser notification
+        if (Notification.permission === "granted") {
+          new Notification("Stock Alert", {
+            body: `${newAlerts.length} products need attention`,
+            icon: "/favicon.ico"
+          });
+        }
+      }
+    }
   };
 
   const sendMessage = () => {
@@ -441,13 +590,27 @@ export default function Index() {
       type: "user",
       content: inputMessage,
       timestamp: new Date(),
+      language: currentLanguage,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     const currentInput = inputMessage;
     setInputMessage("");
 
-    // Simulate bot response with product recommendations
+    // Process chat-based shopping commands
+    const shoppingResult = processShoppingCommands(currentInput);
+    if (shoppingResult.itemsAdded > 0) {
+      const botResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "bot",
+        content: shoppingResult.response,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, botResponse]);
+      return;
+    }
+
+    // Simulate bot response with enhanced AI
     setTimeout(() => {
       const response = getBotResponse(currentInput);
       const botResponse: Message = {
@@ -461,6 +624,86 @@ export default function Index() {
     }, 1000);
   };
 
+  const processShoppingCommands = (input: string): { itemsAdded: number; response: string } => {
+    const lowerInput = input.toLowerCase();
+    let itemsAdded = 0;
+    let response = "";
+
+    // Parse commands like "add 10 bobbin holders and 5 heald wires"
+    const addMatches = lowerInput.match(/(?:add|சேர்)\s+(\d+)\s+([^,\s]+(?:\s+[^,\s]+)*)/g);
+    
+    if (addMatches) {
+      const addedItems: string[] = [];
+      
+      addMatches.forEach(match => {
+        const parts = match.match(/(?:add|சேர்)\s+(\d+)\s+(.+)/);
+        if (parts) {
+          const quantity = parseInt(parts[1]);
+          const productName = parts[2].trim();
+          
+          // Find matching product
+          const matchingProduct = products.find(p => 
+            p.name.toLowerCase().includes(productName) ||
+            p.tags?.some(tag => tag.toLowerCase().includes(productName))
+          );
+          
+          if (matchingProduct) {
+            addToEnquiryCart(matchingProduct.id, quantity);
+            addedItems.push(`${quantity}x ${matchingProduct.name}`);
+            itemsAdded += quantity;
+          }
+        }
+      });
+      
+      if (addedItems.length > 0) {
+        response = `Added to your enquiry cart: ${addedItems.join(", ")}. Total items: ${itemsAdded}. Would you like to generate an estimation?`;
+      }
+    }
+
+    // Handle stock check commands
+    if (lowerInput.includes("stock") || lowerInput.includes("available") || lowerInput.includes("ஸ்டாக்")) {
+      const productName = lowerInput.replace(/(check|stock|available|ஸ்டாக்|சரிபார்)/g, "").trim();
+      if (productName) {
+        const matchingProduct = products.find(p => 
+          p.name.toLowerCase().includes(productName)
+        );
+        if (matchingProduct) {
+          response = `${matchingProduct.name} (${matchingProduct.code}): ${matchingProduct.stock} units in stock. Price: ₹${matchingProduct.price.toLocaleString()}`;
+          return { itemsAdded: 0, response };
+        }
+      }
+    }
+
+    // Handle compatibility checks
+    if (lowerInput.includes("compatible") || lowerInput.includes("compatibility") || lowerInput.includes("பொருத்தம்")) {
+      response = handleCompatibilityCheck(input);
+      return { itemsAdded: 0, response };
+    }
+
+    return { itemsAdded, response };
+  };
+
+  const handleCompatibilityCheck = (input: string): string => {
+    // Extract loom model from input
+    const modelMatches = input.match(/(G\d+|JAT\d+|ZAX|ZW|OMNIplus|TERRAplus|ALPHA\s+\d+|A\d+|R\d+)/i);
+    
+    if (modelMatches) {
+      const model = modelMatches[0];
+      const compatibleProducts = products.filter(p => 
+        p.compatibility?.some(compat => compat.toLowerCase().includes(model.toLowerCase()))
+      );
+      
+      if (compatibleProducts.length > 0) {
+        const productList = compatibleProducts.map(p => `${p.name} (${p.code})`).join(", ");
+        return `Compatible parts for ${model}: ${productList}. Would you like details on any specific part?`;
+      } else {
+        return `No direct matches found for ${model}. Let me check our catalog for similar models or contact our technical team for assistance.`;
+      }
+    }
+    
+    return "Please specify the loom model (e.g., Toyota G810, Tsudakoma ZAX) to check compatibility.";
+  };
+
   const getBotResponse = (userInput: string): { content: string; recommendations?: Product[] } => {
     const input = userInput.toLowerCase();
     
@@ -471,6 +714,13 @@ export default function Index() {
     
     if (faqMatch) {
       return { content: faqMatch.answer };
+    }
+
+    // Handle comparison requests
+    if (input.includes("compare") || input.includes("difference") || input.includes("vs")) {
+      return {
+        content: "I can help you compare products! Use the Product Comparison feature or tell me which specific products you'd like to compare (e.g., 'Compare Toyota reed vs Tsudakoma reed')."
+      };
     }
 
     // Product recommendations based on queries
@@ -539,6 +789,22 @@ export default function Index() {
       };
     }
 
+    if (input.includes("staubli")) {
+      const recommendations = products.filter(p => p.category === "STAUBLI");
+      return {
+        content: "Here are Staubli loom spare parts:",
+        recommendations
+      };
+    }
+
+    if (input.includes("itema")) {
+      const recommendations = products.filter(p => p.category === "ITEMA");
+      return {
+        content: "Here are Itema loom spare parts:",
+        recommendations
+      };
+    }
+
     if (input.includes("price") || input.includes("cost")) {
       return {
         content: "Our loom spare prices vary by manufacturer. Toyota parts start from ₹450, Tsudakoma from ₹150, and Picanol from ₹3,200. Would you like specific pricing?"
@@ -546,25 +812,31 @@ export default function Index() {
     }
 
     if (input.includes("stock") || input.includes("available")) {
+      const lowStockProducts = products.filter(p => p.isLowStock || p.stock <= 20);
+      if (lowStockProducts.length > 0) {
+        return {
+          content: `Current stock levels: We have good inventory for most parts. However, ${lowStockProducts.length} items are running low: ${lowStockProducts.map(p => p.name).join(", ")}. Would you like real-time stock alerts?`
+        };
+      }
       return {
-        content: "We maintain good stock levels across all manufacturers. Current stock includes 45 Toyota reeds, 120 Tsudakoma hooks, and 25 Picanol temples."
+        content: "We maintain good stock levels across all manufacturers. All products are currently well-stocked. I can enable real-time stock monitoring for you."
       };
     }
 
-    if (input.includes("quotation") || input.includes("quote")) {
+    if (input.includes("estimation") || input.includes("estimate") || input.includes("quote")) {
       return {
-        content: "I can help you generate a quotation! Add products to your enquiry cart and I'll create a professional quote for you."
+        content: "I can help you generate a professional estimation! Add products to your enquiry cart and I'll create a detailed estimate with pricing and validity period."
       };
     }
 
     if (input.includes("identify") || input.includes("unknown part")) {
       return {
-        content: "Use our image recognition feature! Upload a photo of your spare part and I'll help identify it."
+        content: "Use our AI-powered image recognition feature! Upload a photo of your spare part and I'll help identify it and check compatibility."
       };
     }
 
     return {
-      content: "I can help you with Toyota, Tsudakoma, Picanol, Staubli, and Itema loom spares. Try asking about specific parts like 'piston rings for airjet loom' or use our image recognition to identify unknown parts!"
+      content: "I can help you with Toyota, Tsudakoma, Picanol, Staubli, and Itema loom spares. Try commands like 'Add 10 bobbin holders', 'Check stock for reed', 'Is this compatible with Toyota G810?', or use our product comparison feature!"
     };
   };
 
@@ -576,7 +848,7 @@ export default function Index() {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = "en-US";
+      recognitionRef.current.lang = currentLanguage === "ta" ? "ta-IN" : "en-US";
 
       recognitionRef.current.onstart = () => {
         setIsRecording(true);
@@ -641,35 +913,55 @@ export default function Index() {
     }
   };
 
-  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Simulate CSV import
-      const sampleImportedProducts: Product[] = [
-        {
-          id: Date.now().toString(),
-          code: "RKM-IMP-001",
-          name: "Imported Reed Set",
-          category: "TOYOTA",
-          price: 1200,
-          stock: 30,
-          description: "Imported from CSV data",
-          tags: ["imported", "reed"],
-        },
-        {
-          id: (Date.now() + 1).toString(),
-          code: "RKM-IMP-002",
-          name: "Imported Hook Set",
-          category: "TSUDAKOMA",
-          price: 800,
-          stock: 50,
-          description: "Imported from CSV data",
-          tags: ["imported", "hooks"],
-        },
-      ];
-      
-      setProducts(prev => [...prev, ...sampleImportedProducts]);
-      setIsImportDataOpen(false);
+      try {
+        const text = await file.text();
+        const lines = text.split('\n');
+        const headers = lines[0].split(',');
+        
+        const importedProducts: Product[] = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',');
+          if (values.length >= 6) {
+            const product: Product = {
+              id: Date.now().toString() + i,
+              code: values[0]?.trim() || `RKM-IMP-${i}`,
+              name: values[1]?.trim() || `Imported Product ${i}`,
+              category: (values[2]?.trim() as Product["category"]) || "TOYOTA",
+              price: parseFloat(values[3]?.trim()) || 0,
+              stock: parseInt(values[4]?.trim()) || 0,
+              description: values[5]?.trim() || "Imported from CSV",
+              compatibility: values[6] ? values[6].split(';').map(s => s.trim()) : undefined,
+              tags: values[7] ? values[7].split(';').map(s => s.trim()) : ["imported"],
+              isLowStock: parseInt(values[4]?.trim()) <= 20,
+              lastRestocked: new Date(),
+            };
+            importedProducts.push(product);
+          }
+        }
+        
+        if (importedProducts.length > 0) {
+          setProducts(prev => [...prev, ...importedProducts]);
+          
+          // Simulate Supabase sync
+          setTimeout(() => {
+            const botMessage: Message = {
+              id: Date.now().toString(),
+              type: "bot",
+              content: `✅ Successfully imported ${importedProducts.length} products to database. All data has been automatically synced to Supabase for real-time access.`,
+              timestamp: new Date(),
+            };
+            setMessages(prev => [...prev, botMessage]);
+          }, 1000);
+        }
+        
+        setIsImportDataOpen(false);
+      } catch (error) {
+        console.error("Import error:", error);
+      }
     }
   };
 
@@ -684,6 +976,7 @@ export default function Index() {
       image: "",
       compatibility: "",
       tags: "",
+      specifications: "",
     });
   };
 
@@ -698,6 +991,15 @@ export default function Index() {
       return;
     }
 
+    const specifications = productFormData.specifications 
+      ? Object.fromEntries(
+          productFormData.specifications.split(',').map(spec => {
+            const [key, value] = spec.split(':');
+            return [key?.trim(), value?.trim()];
+          }).filter(([key, value]) => key && value)
+        )
+      : {};
+
     const newProduct: Product = {
       id: Date.now().toString(),
       code: productFormData.code,
@@ -709,11 +1011,25 @@ export default function Index() {
       image: productFormData.image || undefined,
       compatibility: productFormData.compatibility ? productFormData.compatibility.split(",").map(s => s.trim()) : undefined,
       tags: productFormData.tags ? productFormData.tags.split(",").map(s => s.trim()) : undefined,
+      specifications,
+      isLowStock: parseInt(productFormData.stock) <= 20,
+      lastRestocked: new Date(),
     };
 
     setProducts((prev) => [...prev, newProduct]);
     resetProductForm();
     setIsAddProductOpen(false);
+
+    // Simulate Supabase sync
+    setTimeout(() => {
+      const botMessage: Message = {
+        id: Date.now().toString(),
+        type: "bot",
+        content: `✅ Product "${newProduct.name}" added successfully and synced to Supabase database.`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, botMessage]);
+    }, 500);
   };
 
   const handleEditProduct = (product: Product) => {
@@ -728,6 +1044,7 @@ export default function Index() {
       image: product.image || "",
       compatibility: product.compatibility?.join(", ") || "",
       tags: product.tags?.join(", ") || "",
+      specifications: product.specifications ? Object.entries(product.specifications).map(([k, v]) => `${k}:${v}`).join(", ") : "",
     });
     setIsEditProductOpen(true);
   };
@@ -744,6 +1061,15 @@ export default function Index() {
       return;
     }
 
+    const specifications = productFormData.specifications 
+      ? Object.fromEntries(
+          productFormData.specifications.split(',').map(spec => {
+            const [key, value] = spec.split(':');
+            return [key?.trim(), value?.trim()];
+          }).filter(([key, value]) => key && value)
+        )
+      : {};
+
     const updatedProduct: Product = {
       ...editingProduct,
       code: productFormData.code,
@@ -755,6 +1081,8 @@ export default function Index() {
       image: productFormData.image || undefined,
       compatibility: productFormData.compatibility ? productFormData.compatibility.split(",").map(s => s.trim()) : undefined,
       tags: productFormData.tags ? productFormData.tags.split(",").map(s => s.trim()) : undefined,
+      specifications,
+      isLowStock: parseInt(productFormData.stock) <= 20,
     };
 
     setProducts((prev) =>
@@ -787,38 +1115,109 @@ export default function Index() {
     setEnquiryCart(prev => prev.filter(item => item.productId !== productId));
   };
 
-  const generateQuotation = () => {
-    if (enquiryCart.length === 0 || !quotationForm.customerName) return;
+  const generateEstimation = () => {
+    if (enquiryCart.length === 0 || !estimationForm.customerName) return;
 
-    const quotationItems = enquiryCart.map(item => {
+    const estimationItems = enquiryCart.map(item => {
       const product = products.find(p => p.id === item.productId)!;
       return { ...item, product };
     });
 
-    const totalAmount = quotationItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    const totalAmount = estimationItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    const validUntil = new Date();
+    validUntil.setDate(validUntil.getDate() + 30); // Valid for 30 days
 
-    const newQuotation: Quotation = {
+    const newEstimation: Estimation = {
       id: Date.now().toString(),
       date: new Date(),
-      customerName: quotationForm.customerName,
-      customerEmail: quotationForm.customerEmail,
-      customerPhone: quotationForm.customerPhone,
-      items: quotationItems,
+      customerName: estimationForm.customerName,
+      customerEmail: estimationForm.customerEmail,
+      customerPhone: estimationForm.customerPhone,
+      items: estimationItems,
       totalAmount,
       status: "draft",
+      validUntil,
     };
 
-    setQuotations(prev => [...prev, newQuotation]);
+    setEstimations(prev => [...prev, newEstimation]);
     setEnquiryCart([]);
-    setQuotationForm({ customerName: "", customerEmail: "", customerPhone: "" });
-    setIsQuotationOpen(false);
+    setEstimationForm({ customerName: "", customerEmail: "", customerPhone: "" });
+    setIsEstimationOpen(false);
   };
 
-  const sendQuotationViaWhatsApp = (quotation: Quotation) => {
-    const message = `RKM Loom Spares Quotation\n\nCustomer: ${quotation.customerName}\nDate: ${quotation.date.toLocaleDateString()}\n\nItems:\n${quotation.items.map(item => `${item.product.name} (${item.product.code}) - Qty: ${item.quantity} - ₹${item.product.price * item.quantity}`).join('\n')}\n\nTotal: ₹${quotation.totalAmount.toLocaleString()}\n\nContact us for more details!`;
+  const generatePDF = (estimation: Estimation) => {
+    // Create PDF content
+    const pdfContent = `
+RKM LOOM SPARES - ESTIMATION
+
+Customer: ${estimation.customerName}
+Email: ${estimation.customerEmail}
+Phone: ${estimation.customerPhone}
+Date: ${estimation.date.toLocaleDateString()}
+Valid Until: ${estimation.validUntil.toLocaleDateString()}
+
+ITEMS:
+${estimation.items.map(item => 
+  `${item.product.name} (${item.product.code})
+  Quantity: ${item.quantity}
+  Unit Price: ₹${item.product.price.toLocaleString()}
+  Total: ₹${(item.product.price * item.quantity).toLocaleString()}
+  `).join('\n')}
+
+TOTAL AMOUNT: ₹${estimation.totalAmount.toLocaleString()}
+
+Terms & Conditions:
+- This estimation is valid for 30 days
+- Prices subject to change without notice
+- All products come with 1-year warranty
+- Delivery charges may apply
+
+RKM LOOM SPARES
+Contact: info@rkmlooms.com | +91-XXXXXXXXXX
+    `;
+
+    // Create and download PDF
+    const blob = new Blob([pdfContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `RKM_Estimation_${estimation.id}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const sendEstimationViaWhatsApp = (estimation: Estimation) => {
+    const message = `🔧 RKM Loom Spares Estimation
+
+📋 Customer: ${estimation.customerName}
+📅 Date: ${estimation.date.toLocaleDateString()}
+⏰ Valid Until: ${estimation.validUntil.toLocaleDateString()}
+
+📦 Items:
+${estimation.items.map(item => `• ${item.product.name} (${item.product.code}) - Qty: ${item.quantity} - ₹${(item.product.price * item.quantity).toLocaleString()}`).join('\n')}
+
+💰 Total: ₹${estimation.totalAmount.toLocaleString()}
+
+🛡️ All parts come with 1-year warranty
+🚚 Fast delivery across India
+
+Contact us to place your order!
+📧 info@rkmlooms.com`;
     
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const addToComparison = (product: Product) => {
+    if (comparisonProducts.length < 3 && !comparisonProducts.find(p => p.id === product.id)) {
+      setComparisonProducts(prev => [...prev, product]);
+    }
+  };
+
+  const removeFromComparison = (productId: string) => {
+    setComparisonProducts(prev => prev.filter(p => p.id !== productId));
   };
 
   const filteredProducts = products.filter(
@@ -834,7 +1233,7 @@ export default function Index() {
   });
 
   const enquiryTotal = enquiryCartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-
+  const unreadAlerts = stockAlerts.filter(alert => !alert.read).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-primary/5">
@@ -858,12 +1257,43 @@ export default function Index() {
               </div>
             </div>
 
-            {/* Enquiry Cart Badge */}
+            {/* Header Controls */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* Language Toggle */}
+              <div className="flex items-center space-x-2">
+                <Languages className="h-4 w-4" />
+                <Switch
+                  checked={currentLanguage === "ta"}
+                  onCheckedChange={(checked) => setCurrentLanguage(checked ? "ta" : "en")}
+                />
+                <span className="text-sm">{currentLanguage === "ta" ? "தமிழ்" : "EN"}</span>
+              </div>
+
+              {/* Real-time Stock Toggle */}
+              <div className="flex items-center space-x-2">
+                <RefreshCw className="h-4 w-4" />
+                <Switch
+                  checked={realTimeStockEnabled}
+                  onCheckedChange={setRealTimeStockEnabled}
+                />
+                <span className="text-sm">Live Stock</span>
+              </div>
+
+              {/* Stock Alerts */}
+              <Button variant="outline" className="relative">
+                <Bell className="h-4 w-4" />
+                {unreadAlerts > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0">
+                    {unreadAlerts}
+                  </Badge>
+                )}
+              </Button>
+
+              {/* Enquiry Cart Badge */}
               <Button
                 variant="outline"
                 className="relative"
-                onClick={() => setSelectedTab("quotations")}
+                onClick={() => setSelectedTab("estimations")}
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 Enquiry Cart
@@ -894,12 +1324,12 @@ export default function Index() {
                 <span>Products</span>
               </Button>
               <Button
-                variant={selectedTab === "quotations" ? "default" : "ghost"}
-                onClick={() => setSelectedTab("quotations")}
+                variant={selectedTab === "estimations" ? "default" : "ghost"}
+                onClick={() => setSelectedTab("estimations")}
                 className="flex items-center space-x-2"
               >
                 <FileText className="h-4 w-4" />
-                <span>Quotations</span>
+                <span>Estimations</span>
                 {enquiryCart.length > 0 && (
                   <Badge variant="secondary">{enquiryCart.length}</Badge>
                 )}
@@ -955,15 +1385,15 @@ export default function Index() {
                   <span>Products</span>
                 </Button>
                 <Button
-                  variant={selectedTab === "quotations" ? "default" : "ghost"}
+                  variant={selectedTab === "estimations" ? "default" : "ghost"}
                   onClick={() => {
-                    setSelectedTab("quotations");
+                    setSelectedTab("estimations");
                     setIsMobileMenuOpen(false);
                   }}
                   className="flex items-center justify-start space-x-2 w-full relative"
                 >
                   <FileText className="h-4 w-4" />
-                  <span>Quotations</span>
+                  <span>Estimations</span>
                   {enquiryCart.length > 0 && (
                     <Badge variant="secondary">{enquiryCart.length}</Badge>
                   )}
@@ -1000,7 +1430,9 @@ export default function Index() {
                   <CardTitle className="flex items-center space-x-2">
                     <Bot className="h-6 w-6 text-primary" />
                     <span>AI Voice Assistant</span>
-                    <Badge variant="secondary">Voice Enabled</Badge>
+                    <Badge variant="secondary">
+                      {currentLanguage === "ta" ? "தமிழ் & English" : "Voice + Chat Enabled"}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col p-0">
@@ -1057,16 +1489,30 @@ export default function Index() {
                                         <p className="font-medium text-sm truncate">{product.name}</p>
                                         <p className="text-xs text-muted-foreground truncate">{product.code}</p>
                                         <p className="text-sm font-semibold">₹{product.price.toLocaleString()}</p>
+                                        {product.stock <= 20 && (
+                                          <Badge variant="destructive" className="text-xs mt-1">
+                                            Low Stock: {product.stock}
+                                          </Badge>
+                                        )}
                                       </div>
                                     </div>
-                                    <Button 
-                                      size="sm" 
-                                      onClick={() => addToEnquiryCart(product.id)}
-                                      className="flex items-center space-x-1"
-                                    >
-                                      <Plus className="h-3 w-3" />
-                                      <span>Add</span>
-                                    </Button>
+                                    <div className="flex space-x-1">
+                                      <Button 
+                                        size="sm" 
+                                        onClick={() => addToEnquiryCart(product.id)}
+                                        className="flex items-center space-x-1"
+                                      >
+                                        <Plus className="h-3 w-3" />
+                                        <span>Add</span>
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => addToComparison(product)}
+                                      >
+                                        <GitCompare className="h-3 w-3" />
+                                      </Button>
+                                    </div>
                                   </div>
                                 ))}
                               </div>
@@ -1084,7 +1530,11 @@ export default function Index() {
                       <Input
                         value={inputMessage}
                         onChange={(e) => setInputMessage(e.target.value)}
-                        placeholder="Ask about parts, prices, or type 'I want piston rings for airjet loom'..."
+                        placeholder={
+                          currentLanguage === "ta" 
+                            ? "Tamil/English में बोलें या type करें - 'Add 10 bobbin holders', 'Check stock', etc."
+                            : "Ask about parts, compatibility, or say 'Add 10 bobbin holders and 5 heald wires'..."
+                        }
                         onKeyPress={(e) => e.key === "Enter" && sendMessage()}
                         className="flex-1"
                       />
@@ -1114,19 +1564,19 @@ export default function Index() {
                     {isListening && (
                       <p className="text-sm text-muted-foreground mt-2 flex items-center">
                         <span className="animate-pulse mr-2">🎙️</span>
-                        Listening... Speak now
+                        {currentLanguage === "ta" ? "கேட்கிறேன்... பேசுங்கள்" : "Listening... Speak now"}
                       </p>
                     )}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Quick Actions Sidebar */}
+              {/* Enhanced Quick Actions Sidebar */}
               <Card className="w-80 h-[600px]">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Zap className="h-5 w-5" />
-                    <span>Quick Actions</span>
+                    <span>Smart Actions</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -1136,47 +1586,81 @@ export default function Index() {
                     onClick={() => setIsImageRecognitionOpen(true)}
                   >
                     <Camera className="h-4 w-4 mr-2" />
-                    Identify Unknown Part
+                    AI Part Recognition
+                  </Button>
+
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={() => setIsComparisonOpen(true)}
+                  >
+                    <GitCompare className="h-4 w-4 mr-2" />
+                    Compare Products ({comparisonProducts.length}/3)
                   </Button>
                   
                   <Separator />
                   
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Common Queries</h4>
+                    <h4 className="font-medium text-sm">Smart Commands</h4>
                     <div className="space-y-1">
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("I want piston rings for airjet loom")}
+                        onClick={() => setInputMessage("Add 10 bobbin holders and 5 heald wires")}
                       >
-                        Piston rings for airjet loom
+                        🛒 Add 10 bobbin holders & 5 heald wires
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("Show me Toyota reed parts")}
+                        onClick={() => setInputMessage("Check stock for piston rings")}
                       >
-                        Toyota reed parts
+                        📦 Check stock for piston rings
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("Heddle hooks for Tsudakoma")}
+                        onClick={() => setInputMessage("Is this compatible with Toyota G810?")}
                       >
-                        Heddle hooks for Tsudakoma
+                        🔧 Is this compatible with Toyota G810?
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         className="w-full justify-start text-xs"
-                        onClick={() => setInputMessage("What parts do you have for Picanol loom?")}
+                        onClick={() => setInputMessage("Compare Toyota reed vs Tsudakoma reed")}
                       >
-                        Picanol loom parts
+                        ⚖️ Compare Toyota vs Tsudakoma reed
                       </Button>
                     </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Real-time Stock Status */}
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Live Stock Status</h4>
+                    {realTimeStockEnabled ? (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="flex items-center">
+                            <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                            Real-time monitoring
+                          </span>
+                          <Badge variant="outline" className="text-xs">LIVE</Badge>
+                        </div>
+                        {products.filter(p => p.isLowStock).length > 0 && (
+                          <div className="text-xs text-orange-600">
+                            ⚠️ {products.filter(p => p.isLowStock).length} items low stock
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Enable live monitoring above</p>
+                    )}
                   </div>
 
                   <Separator />
@@ -1196,7 +1680,7 @@ export default function Index() {
                         {enquiryCart.length > 3 && (
                           <p className="text-xs text-muted-foreground">+{enquiryCart.length - 3} more items</p>
                         )}
-                        <Button size="sm" className="w-full" onClick={() => setSelectedTab("quotations")}>
+                        <Button size="sm" className="w-full" onClick={() => setSelectedTab("estimations")}>
                           View Cart (₹{enquiryTotal.toLocaleString()})
                         </Button>
                       </div>
@@ -1226,8 +1710,8 @@ export default function Index() {
                 <Dialog open={isImportDataOpen} onOpenChange={setIsImportDataOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full sm:w-auto">
-                      <FileSpreadsheet className="h-4 w-4 mr-2" />
-                      Import Data
+                      <Database className="h-4 w-4 mr-2" />
+                      Import CSV
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -1236,8 +1720,15 @@ export default function Index() {
                     </DialogHeader>
                     <div className="space-y-4">
                       <p className="text-sm text-muted-foreground">
-                        Upload a CSV file with product data. Required columns: code, name, category, price, stock, description
+                        Upload CSV with columns: code, name, category, price, stock, description, compatibility (semicolon-separated), tags (semicolon-separated)
                       </p>
+                      <div className="p-4 bg-blue-50 rounded-lg">
+                        <p className="text-sm font-medium text-blue-900 mb-2">🔗 Supabase Integration Ready</p>
+                        <p className="text-xs text-blue-700">
+                          All imported data will be automatically synced to Supabase for real-time access across devices.
+                          Connect to Supabase via MCP for seamless database management.
+                        </p>
+                      </div>
                       <Button
                         onClick={() => importInputRef.current?.click()}
                         className="w-full"
@@ -1261,16 +1752,16 @@ export default function Index() {
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full sm:w-auto">
                       <Camera className="h-4 w-4 mr-2" />
-                      ID Unknown Part
+                      AI Recognition
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Image Recognition</DialogTitle>
+                      <DialogTitle>AI Part Recognition</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <p className="text-sm text-muted-foreground">
-                        Upload a photo of your spare part and our AI will help identify it
+                        Upload a photo of your spare part and our AI will help identify it and check compatibility
                       </p>
                       <Button
                         onClick={() => imageRecognitionInputRef.current?.click()}
@@ -1296,32 +1787,140 @@ export default function Index() {
                           />
                           {recognitionResult.length > 0 ? (
                             <div className="space-y-2">
-                              <h4 className="font-medium">Possible Matches:</h4>
+                              <h4 className="font-medium">AI Identified Matches:</h4>
                               {recognitionResult.map(product => (
                                 <div key={product.id} className="flex justify-between items-center p-3 border rounded-lg">
                                   <div>
                                     <p className="font-medium">{product.name}</p>
                                     <p className="text-sm text-muted-foreground">{product.code}</p>
                                     <p className="text-sm font-semibold">₹{product.price.toLocaleString()}</p>
+                                    {product.compatibility && (
+                                      <p className="text-xs text-blue-600">Compatible: {product.compatibility.join(", ")}</p>
+                                    )}
                                   </div>
-                                  <Button 
-                                    size="sm"
-                                    onClick={() => {
-                                      addToEnquiryCart(product.id);
-                                      setIsImageRecognitionOpen(false);
-                                    }}
-                                  >
-                                    Add to Cart
-                                  </Button>
+                                  <div className="flex space-x-2">
+                                    <Button 
+                                      size="sm"
+                                      onClick={() => {
+                                        addToEnquiryCart(product.id);
+                                        setIsImageRecognitionOpen(false);
+                                      }}
+                                    >
+                                      Add to Cart
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => addToComparison(product)}
+                                    >
+                                      Compare
+                                    </Button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
                           ) : (
                             <div className="flex items-center justify-center py-8">
                               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                              <span className="ml-2">Analyzing image...</span>
+                              <span className="ml-2">AI analyzing image...</span>
                             </div>
                           )}
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Product Comparison Button */}
+                <Dialog open={isComparisonOpen} onOpenChange={setIsComparisonOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      <GitCompare className="h-4 w-4 mr-2" />
+                      Compare ({comparisonProducts.length})
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                      <DialogTitle>Product Comparison</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {comparisonProducts.length === 0 ? (
+                        <p className="text-center text-muted-foreground py-8">
+                          No products selected for comparison. Add products from the catalog below.
+                        </p>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Feature</TableHead>
+                                {comparisonProducts.map(product => (
+                                  <TableHead key={product.id} className="text-center">
+                                    <div className="space-y-2">
+                                      <p className="font-medium">{product.name}</p>
+                                      <Button 
+                                        size="sm" 
+                                        variant="ghost"
+                                        onClick={() => removeFromComparison(product.id)}
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  </TableHead>
+                                ))}
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell className="font-medium">Code</TableCell>
+                                {comparisonProducts.map(product => (
+                                  <TableCell key={product.id} className="text-center">{product.code}</TableCell>
+                                ))}
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">Category</TableCell>
+                                {comparisonProducts.map(product => (
+                                  <TableCell key={product.id} className="text-center">{product.category}</TableCell>
+                                ))}
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">Price</TableCell>
+                                {comparisonProducts.map(product => (
+                                  <TableCell key={product.id} className="text-center">₹{product.price.toLocaleString()}</TableCell>
+                                ))}
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">Stock</TableCell>
+                                {comparisonProducts.map(product => (
+                                  <TableCell key={product.id} className="text-center">
+                                    <Badge variant={product.stock > 20 ? "default" : "destructive"}>
+                                      {product.stock} units
+                                    </Badge>
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">Compatibility</TableCell>
+                                {comparisonProducts.map(product => (
+                                  <TableCell key={product.id} className="text-center text-sm">
+                                    {product.compatibility?.join(", ") || "N/A"}
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                              {comparisonProducts.some(p => p.specifications) && (
+                                Object.keys(comparisonProducts.find(p => p.specifications)?.specifications || {}).map(specKey => (
+                                  <TableRow key={specKey}>
+                                    <TableCell className="font-medium capitalize">{specKey}</TableCell>
+                                    {comparisonProducts.map(product => (
+                                      <TableCell key={product.id} className="text-center">
+                                        {product.specifications?.[specKey] || "N/A"}
+                                      </TableCell>
+                                    ))}
+                                  </TableRow>
+                                ))
+                              )}
+                            </TableBody>
+                          </Table>
                         </div>
                       )}
                     </div>
@@ -1345,7 +1944,7 @@ export default function Index() {
                     <DialogHeader>
                       <DialogTitle>Add New Product</DialogTitle>
                     </DialogHeader>
-                    <ProductForm
+                    <ProductForm 
                       productFormData={productFormData}
                       setProductFormData={setProductFormData}
                       fileInputRef={fileInputRef}
@@ -1401,8 +2000,22 @@ export default function Index() {
                             ))}
                           </div>
                         )}
+                        {realTimeStockEnabled && product.isLowStock && (
+                          <div className="flex items-center mt-2 text-orange-600">
+                            <AlertTriangle className="h-4 w-4 mr-1" />
+                            <span className="text-xs">Low Stock Alert</span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => addToComparison(product)}
+                          disabled={comparisonProducts.length >= 3}
+                        >
+                          <GitCompare className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1449,14 +2062,32 @@ export default function Index() {
                         <p className="text-xs text-muted-foreground">{product.compatibility.join(", ")}</p>
                       </div>
                     )}
+                    {product.specifications && (
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Specifications:</p>
+                        <div className="text-xs text-muted-foreground">
+                          {Object.entries(product.specifications).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="capitalize">{key}:</span>
+                              <span>{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center mb-3">
                       <div>
                         <p className="text-lg font-semibold">
                           ₹{product.price.toLocaleString()}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          Stock: {product.stock} units
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-sm text-muted-foreground">
+                            Stock: {product.stock} units
+                          </p>
+                          {realTimeStockEnabled && (
+                            <RefreshCw className="h-3 w-3 text-green-500" />
+                          )}
+                        </div>
                       </div>
                       <Badge
                         variant={product.stock > 20 ? "default" : "destructive"}
@@ -1464,14 +2095,24 @@ export default function Index() {
                         {product.stock > 20 ? "In Stock" : "Low Stock"}
                       </Badge>
                     </div>
-                    <Button 
-                      className="w-full" 
-                      size="sm"
-                      onClick={() => addToEnquiryCart(product.id)}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add to Enquiry
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button 
+                        className="flex-1" 
+                        size="sm"
+                        onClick={() => addToEnquiryCart(product.id)}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to Enquiry
+                      </Button>
+                      <Button 
+                        size="sm"
+                        variant="outline"
+                        onClick={() => addToComparison(product)}
+                        disabled={comparisonProducts.length >= 3}
+                      >
+                        <GitCompare className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -1486,12 +2127,12 @@ export default function Index() {
                 <DialogHeader>
                   <DialogTitle>Edit Product</DialogTitle>
                 </DialogHeader>
-                <ProductForm
+                <ProductForm 
                   productFormData={productFormData}
                   setProductFormData={setProductFormData}
                   fileInputRef={fileInputRef}
                   handleImageUpload={handleImageUpload}
-                  isEdit={true}
+                  isEdit={true} 
                 />
                 <DialogFooter>
                   <Button
@@ -1506,8 +2147,8 @@ export default function Index() {
             </Dialog>
           </TabsContent>
 
-          {/* Quotations & Order Management */}
-          <TabsContent value="quotations" className="space-y-4">
+          {/* Estimations & Order Management */}
+          <TabsContent value="estimations" className="space-y-4">
             <div className="grid gap-6 lg:grid-cols-2">
               {/* Enquiry Cart */}
               <Card>
@@ -1525,7 +2166,9 @@ export default function Index() {
                     <div className="text-center py-8">
                       <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-muted-foreground">No items in enquiry cart</p>
-                      <p className="text-sm text-muted-foreground mt-1">Add products from the catalog to create quotations</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Add products from catalog or use AI commands like "Add 10 bobbin holders"
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -1543,6 +2186,11 @@ export default function Index() {
                               <p className="font-medium">{item.product.name}</p>
                               <p className="text-sm text-muted-foreground">{item.product.code}</p>
                               <p className="text-sm font-semibold">₹{item.product.price.toLocaleString()} × {item.quantity}</p>
+                              {item.product.isLowStock && (
+                                <Badge variant="destructive" className="text-xs mt-1">
+                                  Low Stock: {item.product.stock} units
+                                </Badge>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -1590,49 +2238,50 @@ export default function Index() {
                       
                       <Button 
                         className="w-full" 
-                        onClick={() => setIsQuotationOpen(true)}
+                        onClick={() => setIsEstimationOpen(true)}
                         disabled={enquiryCart.length === 0}
                       >
                         <FileText className="h-4 w-4 mr-2" />
-                        Generate Quotation
+                        Generate Estimation
                       </Button>
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              {/* Previous Quotations */}
+              {/* Previous Estimations */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Previous Quotations</CardTitle>
+                  <CardTitle>Previous Estimations</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {quotations.length === 0 ? (
+                  {estimations.length === 0 ? (
                     <div className="text-center py-8">
                       <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No quotations generated yet</p>
+                      <p className="text-muted-foreground">No estimations generated yet</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {quotations.slice(0, 5).map(quotation => (
-                        <div key={quotation.id} className="p-4 border rounded-lg">
+                      {estimations.slice(0, 5).map(estimation => (
+                        <div key={estimation.id} className="p-4 border rounded-lg">
                           <div className="flex justify-between items-start mb-2">
                             <div>
-                              <p className="font-medium">{quotation.customerName}</p>
-                              <p className="text-sm text-muted-foreground">{quotation.date.toLocaleDateString()}</p>
+                              <p className="font-medium">{estimation.customerName}</p>
+                              <p className="text-sm text-muted-foreground">{estimation.date.toLocaleDateString()}</p>
+                              <p className="text-xs text-muted-foreground">Valid until: {estimation.validUntil.toLocaleDateString()}</p>
                             </div>
-                            <Badge variant={quotation.status === "sent" ? "default" : "secondary"}>
-                              {quotation.status}
+                            <Badge variant={estimation.status === "sent" ? "default" : "secondary"}>
+                              {estimation.status}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
-                            {quotation.items.length} items • ₹{quotation.totalAmount.toLocaleString()}
+                            {estimation.items.length} items • ₹{estimation.totalAmount.toLocaleString()}
                           </p>
-                          <div className="flex space-x-2">
+                          <div className="flex flex-wrap gap-2">
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => sendQuotationViaWhatsApp(quotation)}
+                              onClick={() => sendEstimationViaWhatsApp(estimation)}
                             >
                               <Phone className="h-3 w-3 mr-1" />
                               WhatsApp
@@ -1641,7 +2290,11 @@ export default function Index() {
                               <Mail className="h-3 w-3 mr-1" />
                               Email
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => generatePDF(estimation)}
+                            >
                               <Download className="h-3 w-3 mr-1" />
                               PDF
                             </Button>
@@ -1654,19 +2307,19 @@ export default function Index() {
               </Card>
             </div>
 
-            {/* Generate Quotation Dialog */}
-            <Dialog open={isQuotationOpen} onOpenChange={setIsQuotationOpen}>
+            {/* Generate Estimation Dialog */}
+            <Dialog open={isEstimationOpen} onOpenChange={setIsEstimationOpen}>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Generate Quotation</DialogTitle>
+                  <DialogTitle>Generate Estimation</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="customerName">Customer Name *</Label>
                     <Input
                       id="customerName"
-                      value={quotationForm.customerName}
-                      onChange={(e) => setQuotationForm(prev => ({ ...prev, customerName: e.target.value }))}
+                      value={estimationForm.customerName}
+                      onChange={(e) => setEstimationForm(prev => ({ ...prev, customerName: e.target.value }))}
                       placeholder="Enter customer name"
                     />
                   </div>
@@ -1675,8 +2328,8 @@ export default function Index() {
                     <Input
                       id="customerEmail"
                       type="email"
-                      value={quotationForm.customerEmail}
-                      onChange={(e) => setQuotationForm(prev => ({ ...prev, customerEmail: e.target.value }))}
+                      value={estimationForm.customerEmail}
+                      onChange={(e) => setEstimationForm(prev => ({ ...prev, customerEmail: e.target.value }))}
                       placeholder="customer@example.com"
                     />
                   </div>
@@ -1684,25 +2337,30 @@ export default function Index() {
                     <Label htmlFor="customerPhone">Phone</Label>
                     <Input
                       id="customerPhone"
-                      value={quotationForm.customerPhone}
-                      onChange={(e) => setQuotationForm(prev => ({ ...prev, customerPhone: e.target.value }))}
+                      value={estimationForm.customerPhone}
+                      onChange={(e) => setEstimationForm(prev => ({ ...prev, customerPhone: e.target.value }))}
                       placeholder="+91 9876543210"
                     />
                   </div>
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-900">
+                      📄 Estimation will be valid for 30 days and include warranty terms.
+                    </p>
+                  </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsQuotationOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsEstimationOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={generateQuotation} disabled={!quotationForm.customerName}>
-                    Generate Quotation
+                  <Button onClick={generateEstimation} disabled={!estimationForm.customerName}>
+                    Generate Estimation
                   </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </TabsContent>
 
-          {/* Analytics Dashboard */}
+          {/* Enhanced Analytics Dashboard */}
           <TabsContent value="analytics" className="space-y-4">
             <h2 className="text-2xl font-bold">Business Analytics</h2>
 
@@ -1745,14 +2403,14 @@ export default function Index() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Active Quotations
+                    Active Estimations
                   </CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{quotations.length}</div>
+                  <div className="text-2xl font-bold">{estimations.length}</div>
                   <p className="text-xs text-muted-foreground">
-                    Total quotations sent
+                    Total estimations sent
                   </p>
                 </CardContent>
               </Card>
@@ -1760,18 +2418,55 @@ export default function Index() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    AI Interactions
+                    Stock Alerts
                   </CardTitle>
-                  <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                  <Bell className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{messages.length}</div>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {products.filter(p => p.isLowStock).length}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Total messages today
+                    Items need restocking
                   </p>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Real-time Stock Monitoring */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Real-time Stock Monitoring</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <RefreshCw className={`h-4 w-4 ${realTimeStockEnabled ? 'text-green-500' : 'text-gray-400'}`} />
+                      <span>Real-time monitoring</span>
+                    </div>
+                    <Switch
+                      checked={realTimeStockEnabled}
+                      onCheckedChange={setRealTimeStockEnabled}
+                    />
+                  </div>
+                  
+                  {products.filter(p => p.isLowStock).length > 0 && (
+                    <div className="p-4 bg-orange-50 rounded-lg">
+                      <h4 className="font-medium text-orange-900 mb-2">⚠️ Low Stock Alerts</h4>
+                      <div className="space-y-1">
+                        {products.filter(p => p.isLowStock).map(product => (
+                          <div key={product.id} className="flex justify-between items-center text-sm">
+                            <span>{product.name}</span>
+                            <Badge variant="destructive">{product.stock} units</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
@@ -1791,6 +2486,7 @@ export default function Index() {
                       (sum, p) => sum + p.price * p.stock,
                       0,
                     );
+                    const lowStockCount = categoryProducts.filter(p => p.isLowStock).length;
 
                     return (
                       <div
@@ -1802,6 +2498,9 @@ export default function Index() {
                           <p className="text-sm text-muted-foreground">
                             {categoryProducts.length} products • {categoryStock}{" "}
                             units
+                            {lowStockCount > 0 && (
+                              <span className="text-orange-600"> • {lowStockCount} low stock</span>
+                            )}
                           </p>
                         </div>
                         <div className="text-right">
