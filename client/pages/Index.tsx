@@ -1006,7 +1006,7 @@ export default function Index() {
                 <CardContent className="flex-1 flex flex-col p-0">
                   {/* Messages */}
                   <ScrollArea className="flex-1 px-6">
-                    <div className="space-y-4">
+                    <div className="space-y-4 overflow-hidden">
                       {messages.map((message) => (
                         <div key={message.id} className="space-y-3">
                           <div
