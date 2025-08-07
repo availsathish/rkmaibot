@@ -1048,14 +1048,14 @@ export default function Index() {
                               </div>
                               <div className="grid gap-2">
                                 {message.productRecommendations.map((product) => (
-                                  <div key={product.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                                    <div className="flex items-center space-x-3">
+                                  <div key={product.id} className="flex items-center justify-between p-3 bg-white rounded-lg border max-w-full overflow-hidden">
+                                    <div className="flex items-center space-x-3 min-w-0 flex-1">
                                       {product.image && (
-                                        <img src={product.image} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                                        <img src={product.image} alt={product.name} className="w-12 h-12 object-cover rounded flex-shrink-0" />
                                       )}
-                                      <div>
-                                        <p className="font-medium text-sm">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground">{product.code}</p>
+                                      <div className="min-w-0 flex-1">
+                                        <p className="font-medium text-sm truncate">{product.name}</p>
+                                        <p className="text-xs text-muted-foreground truncate">{product.code}</p>
                                         <p className="text-sm font-semibold">₹{product.price.toLocaleString()}</p>
                                       </div>
                                     </div>
