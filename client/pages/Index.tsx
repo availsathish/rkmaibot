@@ -1239,26 +1239,28 @@ Contact us to place your order!
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-primary/5">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-primary/10">
-        <div className="max-w-7xl m-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
+        <div className="max-w-7xl m-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-6">
               <img
                 src="https://cdn.builder.io/api/v1/assets/23768d4150264c7687d71bb9e74d2c80/whatsapp_image_2024-03-27_at_2.03.16_pm-removebg-preview-1-2-1581cd?format=webp&width=800"
                 alt="RKM Loom Spares"
-                className="h-10 w-auto"
+                className="h-12 w-auto"
               />
               <div>
-                <h1 className="text-xl font-bold text-primary">
+                <h1 className="text-2xl font-bold text-primary tracking-wide">
                   RKM LOOM SPARES
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  AI-Powered Textile Solutions
+                  <p>
+                    <br />
+                  </p>
                 </p>
               </div>
             </div>
 
             {/* Header Controls */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-6">
               {/* Language Toggle */}
               <div className="flex items-center space-x-2">
                 <Languages className="h-4 w-4" />
@@ -1292,13 +1294,14 @@ Contact us to place your order!
               {/* Enquiry Cart Badge */}
               <Button
                 variant="outline"
-                className="relative"
+                className="relative px-4 py-2"
                 onClick={() => setSelectedTab("estimations")}
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Enquiry Cart
+                <span className="hidden xl:inline">Enquiry Cart</span>
+                <span className="xl:hidden">Cart</span>
                 {enquiryCart.length > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-primary text-white">
                     {enquiryCart.length}
                   </Badge>
                 )}
@@ -1306,19 +1309,20 @@ Contact us to place your order!
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden lg:flex space-x-8">
               <Button
                 variant={selectedTab === "chat" ? "default" : "ghost"}
                 onClick={() => setSelectedTab("chat")}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 px-4 py-2"
               >
                 <MessageCircle className="h-4 w-4" />
-                <span>AI Assistant</span>
+                <span className="hidden xl:inline">AI Assistant</span>
+                <span className="xl:hidden">AI</span>
               </Button>
               <Button
                 variant={selectedTab === "products" ? "default" : "ghost"}
                 onClick={() => setSelectedTab("products")}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 px-4 py-2"
               >
                 <Package className="h-4 w-4" />
                 <span>Products</span>
@@ -1326,28 +1330,30 @@ Contact us to place your order!
               <Button
                 variant={selectedTab === "estimations" ? "default" : "ghost"}
                 onClick={() => setSelectedTab("estimations")}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 px-4 py-2 relative"
               >
                 <FileText className="h-4 w-4" />
-                <span>Estimations</span>
+                <span className="hidden xl:inline">Estimations</span>
+                <span className="xl:hidden">Quotes</span>
                 {enquiryCart.length > 0 && (
-                  <Badge variant="secondary">{enquiryCart.length}</Badge>
+                  <Badge variant="secondary" className="ml-1">{enquiryCart.length}</Badge>
                 )}
               </Button>
               <Button
                 variant={selectedTab === "analytics" ? "default" : "ghost"}
                 onClick={() => setSelectedTab("analytics")}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 px-4 py-2"
               >
                 <BarChart3 className="h-4 w-4" />
-                <span>Analytics</span>
+                <span className="hidden xl:inline">Analytics</span>
+                <span className="xl:hidden">Stats</span>
               </Button>
             </nav>
 
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
-              className="md:hidden"
+              className="lg:hidden p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -1360,7 +1366,7 @@ Contact us to place your order!
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-primary/10">
+            <div className="lg:hidden py-6 border-t border-primary/10 bg-gray-50/50">
               <nav className="flex flex-col space-y-2">
                 <Button
                   variant={selectedTab === "chat" ? "default" : "ghost"}
