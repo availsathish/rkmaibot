@@ -113,6 +113,199 @@ const LOOM_CATEGORIES = [
   "ITEMA",
 ] as const;
 
+// ProductForm component extracted to fix input typing issues
+interface ProductFormProps {
+  productFormData: {
+    code: string;
+    name: string;
+    category: Product["category"];
+    price: string;
+    stock: string;
+    description: string;
+    image: string;
+    compatibility: string;
+    tags: string;
+  };
+  setProductFormData: React.Dispatch<React.SetStateAction<{
+    code: string;
+    name: string;
+    category: Product["category"];
+    price: string;
+    stock: string;
+    description: string;
+    image: string;
+    compatibility: string;
+    tags: string;
+  }>>;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isEdit?: boolean;
+}
+
+const ProductForm: React.FC<ProductFormProps> = ({
+  productFormData,
+  setProductFormData,
+  fileInputRef,
+  handleImageUpload,
+  isEdit = false
+}) => (
+  <div className="space-y-4">
+    <div>
+      <Label htmlFor="productCode">Product Code *</Label>
+      <Input
+        id="productCode"
+        value={productFormData.code}
+        onChange={(e) =>
+          setProductFormData((prev) => ({ ...prev, code: e.target.value }))
+        }
+        placeholder="e.g., RKM-TOY-001"
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="productName">Product Name *</Label>
+      <Input
+        id="productName"
+        value={productFormData.name}
+        onChange={(e) =>
+          setProductFormData((prev) => ({ ...prev, name: e.target.value }))
+        }
+        placeholder="Enter product name"
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="category">Category *</Label>
+      <Select
+        value={productFormData.category}
+        onValueChange={(value: Product["category"]) =>
+          setProductFormData((prev) => ({ ...prev, category: value }))
+        }
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Select loom manufacturer" />
+        </SelectTrigger>
+        <SelectContent>
+          {LOOM_CATEGORIES.map((category) => (
+            <SelectItem key={category} value={category}>
+              {category}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4">
+      <div>
+        <Label htmlFor="price">Price (₹) *</Label>
+        <Input
+          id="price"
+          type="number"
+          value={productFormData.price}
+          onChange={(e) =>
+            setProductFormData((prev) => ({ ...prev, price: e.target.value }))
+          }
+          placeholder="0"
+        />
+      </div>
+      <div>
+        <Label htmlFor="stock">Stock Quantity *</Label>
+        <Input
+          id="stock"
+          type="number"
+          value={productFormData.stock}
+          onChange={(e) =>
+            setProductFormData((prev) => ({ ...prev, stock: e.target.value }))
+          }
+          placeholder="0"
+        />
+      </div>
+    </div>
+
+    <div>
+      <Label htmlFor="compatibility">Compatibility (comma-separated)</Label>
+      <Input
+        id="compatibility"
+        value={productFormData.compatibility}
+        onChange={(e) =>
+          setProductFormData((prev) => ({ ...prev, compatibility: e.target.value }))
+        }
+        placeholder="e.g., Toyota G810, Toyota G820"
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="tags">Tags (comma-separated)</Label>
+      <Input
+        id="tags"
+        value={productFormData.tags}
+        onChange={(e) =>
+          setProductFormData((prev) => ({ ...prev, tags: e.target.value }))
+        }
+        placeholder="e.g., reed, shuttle, weaving"
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="description">Description</Label>
+      <Textarea
+        id="description"
+        value={productFormData.description}
+        onChange={(e) =>
+          setProductFormData((prev) => ({
+            ...prev,
+            description: e.target.value,
+          }))
+        }
+        placeholder="Enter product description"
+        rows={3}
+      />
+    </div>
+
+    <div>
+      <Label>Product Image</Label>
+      <div className="mt-2 space-y-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Upload Image
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+        {productFormData.image && (
+          <div className="relative w-full h-32 border rounded-lg overflow-hidden">
+            <img
+              src={productFormData.image}
+              alt="Product preview"
+              className="w-full h-full object-cover"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute top-2 right-2"
+              onClick={() =>
+                setProductFormData((prev) => ({ ...prev, image: "" }))
+              }
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
 const FAQ_DATA = [
   {
     question: "What loom types do you support?",
